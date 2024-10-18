@@ -9,13 +9,13 @@ test('that shows front-end errors of login form', function () {
     $this->browse(function (Browser $browser) {
         $browser->visit('/login')
             ->assertAttribute('@email', 'type', 'email')
-            ->assertAttribute('@email', 'required', '')
+            ->assertAttribute('@email', 'required', 'true')
             ->assertAttribute('@password', 'type', 'password')
-            ->assertAttribute('@password', 'required', '');
+            ->assertAttribute('@password', 'required', 'true');
     });
 });
 
-//désactiver le required des inputs pour ce test ou alors demander au prof
+//désactiver le required des inputs pour ce test
 //test('that shows errors of login form', function () {
 //    $this->browse(function (Browser $browser) {
 //        $browser->visit('/login')
@@ -39,13 +39,12 @@ test('that there is no required error when email and password are populate', fun
     });
 });
 
-test('that it has a french validation message', function(){
-        $this->assertTrue(
-        Lang::hasForLocale('validation.required', 'en'),
-        'English validation message not found'
-    );
-});
-
+//test('that it has a french validation message', function(){
+//        $this->assertTrue(
+//        Lang::hasForLocale('auth.failed', 'fr'),
+//        'Ces identifiants ne correspondent pas à nos enregistrements.'
+//    );
+//});
 
 //        public function it_has_an_english_validation_message()
 //{
@@ -55,18 +54,21 @@ test('that it has a french validation message', function(){
 //    );
 //}
 
-//test('that a user can login', function () {
-//    $this->browse(function (Browser $browser) {
-//        $browser->visit('/login')
-//            ->type('email', 'test@example.com')
-//            ->type('password', 'password')
-//            ->press('Sign in')
-//            ->assertPathIs('/dashboard');
-//    });
-//});
+test('that my page is in french', function(){
+        $this->assertTrue(
+        Lang::hasForLocale('auth.login.title', 'fr'),
+    );
+});
 
-
-
+test('that a user can login', function () {
+    $this->browse(function (Browser $browser) {
+        $browser->visit('/login')
+            ->type('email', 'test@example.com')
+            ->type('password', 'password')
+            ->press('Sign in')
+            ->assertPathIs('/dashboard');
+    });
+});
 
 
 
