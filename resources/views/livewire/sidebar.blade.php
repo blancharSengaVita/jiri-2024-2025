@@ -18,7 +18,7 @@ state([
     'title',
 ]);
 
-mount(function (string $title) {
+mount(function () {
     $this->mobileMenu = false;
     $this->user = Auth::user();
 
@@ -33,16 +33,15 @@ $openMobileMenu = function () {
     $this->mobileMenu = !$this->mobileMenu;
     $this->dispatch('openMobileMenu');
 };
-
 ?>
 
-<div
+<nav
     x-data="{
     open: $wire.entangle('mobileMenu'),
     }"
 >
     <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
-    <div :class=" open ? 'relative z-50 ' : ''" class="lg:hidden" role="dialog" aria-modal="true">
+    <div :class=" open ? 'relative z-50 ' : 'hidden'" role="dialog" aria-modal="true">
         <!--
           Off-canvas menu backdrop, show/hide based on off-canvas menu state.
 
@@ -77,8 +76,8 @@ $openMobileMenu = function () {
                     From: "opacity-100"
                     To: "opacity-0"
                 -->
-                <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
-                    <button type="button" class="-m-2.5 p-2.5">
+                <div :class=" open ? '' : 'hidden'" class="absolute left-full top-0 flex w-16 justify-center pt-5">
+                    <button wire:click="openMobileMenu" type="button" class="-m-2.5 p-2.5">
                         <span class="sr-only">Close sidebar</span>
                         <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -109,7 +108,7 @@ $openMobileMenu = function () {
                                             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                                             </svg>
-                                            Team
+                                            Jiries
                                         </a>
                                     </li>
                                     <li>
@@ -125,48 +124,7 @@ $openMobileMenu = function () {
                                             <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                                             </svg>
-                                            Calendar
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                                            <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
-                                            </svg>
-                                            Documents
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                                            <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
-                                            </svg>
-                                            Reports
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <div class="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                                <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                    <li>
-                                        <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
-                                        <a href="#" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">H</span>
-                                            <span class="truncate">Heroicons</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">T</span>
-                                            <span class="truncate">Tailwind Labs</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">W</span>
-                                            <span class="truncate">Workcation</span>
+                                            Contacts
                                         </a>
                                     </li>
                                 </ul>
@@ -237,7 +195,7 @@ $openMobileMenu = function () {
     </div>
 
     <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
-        <button type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden">
+        <button wire:click="openMobileMenu" type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden">
             <span class="sr-only">Open sidebar</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -249,10 +207,4 @@ $openMobileMenu = function () {
             <img class="h-8 w-8 rounded-full bg-gray-800" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
         </a>
     </div>
-
-    <main class="py-10 lg:pl-72">
-        <div class="px-4 sm:px-6 lg:px-8">
-            <!-- Your content -->
-        </div>
-    </main>
-</div>
+</nav>
