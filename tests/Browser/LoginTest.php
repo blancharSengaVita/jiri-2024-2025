@@ -39,8 +39,9 @@ test('that a user can login', function () {
             ->type('email', 'anchar2107@gmail.com')
             ->type('password', 'password')
             ->press(__('auth.login.sign_in'))
-            ->waitForRoute('dashboard')
+            ->waitForRoute('pages.dashboard')
             ->assertPathIs('/dashboard');
+        //assert de voir un titre ici c'est mieux
     });
 });
 
