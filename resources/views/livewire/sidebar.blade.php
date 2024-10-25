@@ -36,13 +36,13 @@ $openMobileMenu = function () {
 
 ?>
 
-<div>
+<div
     x-data="{
     open: $wire.entangle('mobileMenu'),
     }"
-    :class=" open ? 'fixed inset-0 z-40 overflow-y-auto' : ''">
+>
     <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
-    <div class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
+    <div :class=" open ? 'relative z-50 ' : ''" class="lg:hidden" role="dialog" aria-modal="true">
         <!--
           Off-canvas menu backdrop, show/hide based on off-canvas menu state.
 
