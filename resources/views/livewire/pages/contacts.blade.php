@@ -1,4 +1,6 @@
 <?php
+use App\Models\User;
+use \App\Models\Contact
 use Illuminate\Support\Facades\Auth;
 use function Livewire\Volt\{
     layout,
@@ -8,20 +10,45 @@ use function Livewire\Volt\{
 
 state([
     'drawer',
-    'profilePictureSource',
-    'route' => request()->url(),
+    'contacts',
     'user',
-    'title',
+    'name',
+    'email',
+    'phone'
 ]);
 
 mount(function () {
     $this->drawer = false;
-	$this->user = Auth::user()->load();
-	dd($this->user);
+    $this->user = Auth::user()->load('contacts');
+    $this->contacts = $this->user->contacts()->get();
+
+    $this->name = '' ;
+    $this->email = '';
+    $this->phone = '' ;
 });
 
 $openCreateContactDrawer = function () {
     $this->drawer = !$this->drawer;
+};
+
+Contact::updateOrCreate([
+    'user_id' => Auth::id(),
+    'id' => $this->id
+],
+    [
+        'name' => $this->name,
+        'email' => $this->email,
+        'phone' => $this->phone,
+    ]);
+
+$this->openSinglePlayerExperienceModal = false;
+if ($this->id === 0) {
+    Toaster::success('Expérience ajouté avec succès');
+}
+
+if ($this->id !== 0) {
+    Toaster::success('Expérience modifiée avec succès');
+}
 };
 
 layout('layouts.app');
@@ -32,6 +59,7 @@ layout('layouts.app');
     open: $wire.entangle('drawer'),
     }"
 >
+
     <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des contacts</h1>
     <div>
         <div class="sm:flex sm:items-center">
@@ -63,8 +91,31 @@ layout('layouts.app');
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
-                        @foreach()
-
+                        @foreach($contacts as $contact)
+                            <tr>
+                            <td class="px-5 py-5 pl-4 pr-3 text-sm">
+                                <div class="">
+                                    <div class="h-11 w-11 flex-shrink-0">
+                                        <img class="h-11 w-11 rounded-full" src="{{'https://ui-avatars.com/api/?length=1&name='. $contact->name}}" alt="Photo de {{$contact->name}}">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ $contact->name }}</div>
+                                </div>
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                <div class="font-medium text-gray-900">{{ $contact->email }}</div>
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                <div class="font-medium text-gray-900">{{ $contact->phone }}</div>
+                            </td>
+                            <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-sm font-medium">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">,
+                                        Lindsay Walton</span></a>
+                            </td>
+                            </tr>
                         @endforeach
                         <tr>
                             <td class="px-5 py-5 pl-4 pr-3 text-sm">
@@ -140,21 +191,21 @@ layout('layouts.app');
                                             <div>
                                                 <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
                                                 <div class="mt-2">
-                                                    <input type="text" name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="name" type="text" name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                                                <label  for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
                                                 <div class="mt-2">
-                                                    <input type="text" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="email" type="text" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
                                                 </div>
                                             </div>
 
                                             <div>
                                                 <label for="phone" class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
                                                 <div class="mt-2">
-                                                    <input type="text" name="phone" id="phone" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="phone" type="text" name="phone" id="phone" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
                                                 </div>
                                             </div>
 
@@ -202,7 +253,7 @@ layout('layouts.app');
                                 <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                     Cancel
                                 </button>
-                                <button type="submit" class="ml-4 inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                <button wire:submit.prevent="saveContact" type="submit" class="ml-4 inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                     Save
                                 </button>
                             </div>
