@@ -9,5 +9,10 @@ Volt::route('dashboard', 'pages.dashboard')
     ->middleware(['auth', 'verified'])
     ->name('pages.dashboard');
 
+Volt::route('contacts', 'pages.contacts')
+    ->middleware(['auth', 'verified'])
+    ->name('pages.contacts');
+
+
 
 require __DIR__ . '/auth.php';

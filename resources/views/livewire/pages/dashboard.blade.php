@@ -5,7 +5,6 @@ use function Livewire\Volt\{
 };
 
 layout('layouts.app');
-//dd('test');
 ?>
 
 <div class="py-10">
