@@ -15,6 +15,7 @@
 </head>
 <body class="h-full font-sans antialiased">
 <div class="min-h-screen bg-gray-100">
+    <x-toaster-hub />
     {{--            <livewire:layout.navigation />--}}
         <!-- Page Heading -->
         @if (isset($header))

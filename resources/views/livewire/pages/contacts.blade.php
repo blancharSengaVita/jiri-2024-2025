@@ -1,12 +1,16 @@
 <?php
+
 use App\Models\User;
-use \App\Models\Contact
+use App\Models\Contact;
 use Illuminate\Support\Facades\Auth;
+use Masmerise\Toaster\Toaster;
 use function Livewire\Volt\{
     layout,
     mount,
     state,
 };
+
+layout('layouts.app');
 
 state([
     'drawer',
@@ -14,7 +18,8 @@ state([
     'user',
     'name',
     'email',
-    'phone'
+    'phone',
+    'id',
 ]);
 
 mount(function () {
@@ -22,36 +27,36 @@ mount(function () {
     $this->user = Auth::user()->load('contacts');
     $this->contacts = $this->user->contacts()->get();
 
-    $this->name = '' ;
+    $this->id = 0;
+    $this->name = '';
     $this->email = '';
-    $this->phone = '' ;
+    $this->phone = '';
 });
 
 $openCreateContactDrawer = function () {
     $this->drawer = !$this->drawer;
 };
 
-Contact::updateOrCreate([
-    'user_id' => Auth::id(),
-    'id' => $this->id
-],
-    [
-        'name' => $this->name,
-        'email' => $this->email,
-        'phone' => $this->phone,
-    ]);
+$save = function (){
+    Contact::updateOrCreate([
+        'user_id' => Auth::id(),
+        'id' => $this->id,
+    ],
+        [
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+        ]);
 
-$this->openSinglePlayerExperienceModal = false;
-if ($this->id === 0) {
-    Toaster::success('Expérience ajouté avec succès');
+    $this->openSinglePlayerExperienceModal = false;
+    if ($this->id === 0) {
+        Toaster::success('Contact ajouté avec succès');
+    }
+
+    if ($this->id !== 0) {
+        Toaster::success('Contact modifiée avec succès');
+    };
 }
-
-if ($this->id !== 0) {
-    Toaster::success('Expérience modifiée avec succès');
-}
-};
-
-layout('layouts.app');
 ?>
 
 <div class="py-10"
@@ -67,7 +72,8 @@ layout('layouts.app');
                 <p class="mt-2 text-sm text-gray-700">La liste de tout vos contacts</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <button wire:click="openCreateContactDrawer" type="button" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                <button wire:click="openCreateContactDrawer" type="button"
+                        class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                     Ajouter un contact
                 </button>
             </div>
@@ -93,35 +99,39 @@ layout('layouts.app');
                         <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($contacts as $contact)
                             <tr>
-                            <td class="px-5 py-5 pl-4 pr-3 text-sm">
-                                <div class="">
-                                    <div class="h-11 w-11 flex-shrink-0">
-                                        <img class="h-11 w-11 rounded-full" src="{{'https://ui-avatars.com/api/?length=1&name='. $contact->name}}" alt="Photo de {{$contact->name}}">
+                                <td class="px-5 py-5 pl-4 pr-3 text-sm">
+                                    <div class="">
+                                        <div class="h-11 w-11 flex-shrink-0">
+                                            <img class="h-11 w-11 rounded-full"
+                                                 src="{{'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
+                                                 alt="Photo de {{$contact->name}}">
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                <div>
-                                    <div class="font-medium text-gray-900">{{ $contact->name }}</div>
-                                </div>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                <div class="font-medium text-gray-900">{{ $contact->email }}</div>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                <div class="font-medium text-gray-900">{{ $contact->phone }}</div>
-                            </td>
-                            <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-sm font-medium">
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">,
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                    <div>
+                                        <div class="font-medium text-gray-900">{{ $contact->name }}</div>
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                    <div class="font-medium text-gray-900">{{ $contact->email }}</div>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                    <div class="font-medium text-gray-900">{{ $contact->phone }}</div>
+                                </td>
+                                <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-sm font-medium">
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">,
                                         Lindsay Walton</span></a>
-                            </td>
+                                </td>
                             </tr>
                         @endforeach
                         <tr>
                             <td class="px-5 py-5 pl-4 pr-3 text-sm">
                                 <div class="">
                                     <div class="h-11 w-11 flex-shrink-0">
-                                        <img class="h-11 w-11 rounded-full" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                                        <img class="h-11 w-11 rounded-full"
+                                             src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                             alt="">
                                     </div>
                                 </div>
                             </td>
@@ -147,7 +157,8 @@ layout('layouts.app');
             </div>
         </div>
     </div>
-    <div :class="open ? 'relative z-10' : 'hidden'" class="" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <div :class="open ? 'relative z-10' : 'hidden'" class="" aria-labelledby="slide-over-title" role="dialog"
+         aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
         <div class="fixed inset-0"></div>
 
@@ -165,18 +176,22 @@ layout('layouts.app');
                         To: "translate-x-full"
                     -->
                     <div class="pointer-events-auto w-screen max-w-md">
-                        <form @click.away="open = false" class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
+                        <form @click.away="open = false"
+                              class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                             <div class="h-0 flex-1 overflow-y-auto">
                                 <div class="bg-gray-900 px-4 py-6 sm:px-6">
                                     <div class="flex items-center justify-between">
                                         <h2 class="text-base font-semibold leading-6 text-white" id="slide-over-title">
                                             Nouveau contact</h2>
                                         <div class="ml-3 flex h-7 items-center">
-                                            <button wire:click="openCreateContactDrawer" type="button" class="relative rounded-md bg-gray-900 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
+                                            <button wire:click="openCreateContactDrawer" type="button"
+                                                    class="relative rounded-md bg-gray-900 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
                                                 <span class="absolute -inset-2.5"></span>
                                                 <span class="sr-only">Fermer la modal</span>
-                                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                                     stroke="currentColor" aria-hidden="true" data-slot="icon">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M6 18 18 6M6 6l12 12"/>
                                                 </svg>
                                             </button>
                                         </div>
@@ -189,28 +204,38 @@ layout('layouts.app');
                                     <div class="divide-y divide-gray-200 px-4 sm:px-6">
                                         <div class="space-y-6 pb-5 pt-6">
                                             <div>
-                                                <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
+                                                <label for="name"
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
                                                 <div class="mt-2">
-                                                    <input wire:model="name" type="text" name="name" id="name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="name" type="text" name="name" id="name"
+                                                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                           autocomplete="on">
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <label  for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                                                <label for="email"
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Email</label>
                                                 <div class="mt-2">
-                                                    <input wire:model="email" type="text" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="email" type="text" name="email" id="email"
+                                                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                           autocomplete="on">
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <label for="phone" class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
+                                                <label for="phone"
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
                                                 <div class="mt-2">
-                                                    <input wire:model="phone" type="text" name="phone" id="phone" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" autocomplete="on">
+                                                    <input wire:model="phone" type="text" name="phone" id="phone"
+                                                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                           autocomplete="on">
                                                 </div>
                                             </div>
 
                                             <div class="">
-                                                <label for="picture" class="block text-sm font-medium leading-6 text-gray-900">Upload
+                                                <label for="picture"
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Upload
                                                     file</label>
                                                 <input type="file"
                                                        id="picture"
@@ -250,10 +275,12 @@ layout('layouts.app');
                                 </div>
                             </div>
                             <div class="flex flex-shrink-0 justify-end px-4 py-4">
-                                <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                <button type="button"
+                                        class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                     Cancel
                                 </button>
-                                <button wire:submit.prevent="saveContact" type="submit" class="ml-4 inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                <button wire:submit.prevent="saveContact" type="submit"
+                                        class="ml-4 inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                     Save
                                 </button>
                             </div>
