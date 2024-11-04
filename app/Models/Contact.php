@@ -23,6 +23,7 @@ class Contact extends Authenticatable
         'name',
         'email',
         'phone',
+        'photo',
     ];
 
     public function user(): BelongsTo

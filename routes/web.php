@@ -13,6 +13,10 @@ Volt::route('contacts', 'pages.contacts')
     ->middleware(['auth', 'verified'])
     ->name('pages.contacts');
 
+Volt::route('projects', 'pages.projects')
+    ->middleware(['auth', 'verified'])
+    ->name('pages.projects');
+
 
 
 require __DIR__ . '/auth.php';

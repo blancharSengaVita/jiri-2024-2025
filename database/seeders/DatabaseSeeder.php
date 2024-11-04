@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Contact;
+use App\Models\Project;
 use App\Models\User;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
 
         $blanchar = User::factory()
             ->has(Contact::factory()->count(10))
+            ->has(Project::factory()->count(4))
                 ->create([
                     'name' => 'BLANCHAR',
                     'email' => 'anchar2107@gmail.com',

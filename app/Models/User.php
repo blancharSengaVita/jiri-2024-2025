@@ -28,6 +28,13 @@ class User extends Authenticatable
         return $this
             ->HasMany(Contact::class);
     }
+
+    public function projects(): HasMany
+    {
+        return $this
+            ->hasMany(Project::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
