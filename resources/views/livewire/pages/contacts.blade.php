@@ -26,15 +26,16 @@ state([
 
 rules(fn() => [
     'name' => 'required',
-    'email' => 'required',
+    'email' => 'required|email',
     'phone' => [
         'required',
         'regex:/^[\d\s()+-]+$/',
     ],
-    'photo' => 'nullable|image|max:5120',
+    'photo' => 'sometimes|nullable|image|max:5120',
 ])->messages([
     'name.required' => 'Le champ est obligatoire.',
     'email.required' => 'Le champ est obligatoire.',
+    'email.email' => 'Le champ doit être un email.',
     'phone.required' => 'Le champ est obligatoire.',
     'phone.numeric' => 'Le champ doit être composé de chiffre',
     'phone.regex' => 'Le champ doit contenir uniquement des chiffres, des espaces, des parenthèses, et le signe "+".',
@@ -56,6 +57,7 @@ mount(function () {
 });
 
 $openCreateContactDrawer = function () {
+    $this->resetValidation();
     $this->name = '';
     $this->email = '';
     $this->phone = '';
@@ -73,6 +75,7 @@ $editContact = function (Contact $contact) {
     $this->email = $contact->email;
     $this->phone = $contact->phone;
     $this->path = $contact->photo;
+    $this->photo = null;
     $this->drawer = true;
 };
 
@@ -318,58 +321,68 @@ $closeDeleteModal = function () {
                                 <div class="flex flex-1 flex-col justify-between">
                                     <div class="divide-y divide-gray-200 px-4 sm:px-6">
                                         <div class="space-y-6 pb-5 pt-6">
-                                            <div>
+                                            <fieldset>
                                                 <label for="name"
-                                                       class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Nom<span class="text-red-500">*</span></label>
                                                 <div class="mt-2">
                                                     <input wire:model="name" type="text" name="name" id="name"
                                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                            autocomplete="on">
+                                                    <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
+                                                </div>
                                                     @if ($messages = $errors->get('name'))
                                                         <div class="text-sm text-red-600 space-y-1 mt-2">
                                                             <p>{{$messages[0]}}</p>
                                                         </div>
                                                     @endif
-                                                </div>
-                                            </div>
+                                            </fieldset>
 
-                                            <div>
+                                            <fieldset>
                                                 <label for="email"
-                                                       class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Email<span class="text-red-500">*</span></label>
                                                 <div class="mt-2">
                                                     <input wire:model="email" type="text" name="email" id="email"
                                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                            autocomplete="on">
+                                                    <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
                                                 </div>
+
                                                 @if ($messages = $errors->get('email'))
                                                     <div class="text-sm text-red-600 space-y-1 mt-2">
                                                         <p>{{$messages[0]}}</p>
                                                     </div>
                                                 @endif
-                                            </div>
+                                            </fieldset>
 
-                                            <div>
+                                            <fieldset>
                                                 <label for="phone"
-                                                       class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Téléphone<span class="text-red-500">*</span></label>
                                                 <div class="mt-2">
                                                     <input wire:model="phone" type="text" name="phone" id="phone"
                                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                            autocomplete="on">
-                                                    @if ($messages = $errors->get('phone'))
-                                                        <div class="text-sm text-red-600 space-y-1 mt-2">
-                                                            <p>{{$messages[0]}}</p>
-                                                        </div>
-                                                    @endif
+                                                    <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
                                                 </div>
-                                            </div>
+                                                @if ($messages = $errors->get('phone'))
+                                                    <div class="text-sm text-red-600 space-y-1 mt-2">
+                                                        <p>{{$messages[0]}}</p>
+                                                    </div>
+                                                @endif
+                                            </fieldset>
 
-                                            <div class="">
+                                            <fieldset class="">
                                                 <label
-
                                                         for="photo"
-                                                        class="block text-sm font-medium leading-6 text-gray-900">Photo
-                                                    de
-                                                    profil</label>
+                                                        class="block text-sm font-medium leading-6 text-gray-900">
+                                                    Photo de profil
+                                                </label>
+                                                @if($name)
+                                                    <div class="mt-2 h-24 w-24 flex-shrink-0">
+                                                        <img class="h-24 w-24 rounded-full"
+                                                             src="{{ $path ?  asset($path) : 'https://ui-avatars.com/api/?length=1&name='. $name}}"
+                                                             alt="Photo de {{$name}}">
+                                                    </div>
+                                                @endif
                                                 <input type="file"
                                                        wire:model="photo"
                                                        id="photo"
@@ -409,7 +422,7 @@ $closeDeleteModal = function () {
                                                         <p>{{$messages[0]}}</p>
                                                     </div>
                                                 @endif
-                                            </div>
+                                            </fieldset>
                                         </div>
                                     </div>
                                 </div>
@@ -418,11 +431,11 @@ $closeDeleteModal = function () {
                                 <button type="button"
                                         wire:click="closeCreateContactDrawer"
                                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                    Cancel
+                                    Annuler
                                 </button>
                                 <button type="submit"
                                         class="ml-4 inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                    Save
+                                    Enregistrer
                                 </button>
                             </div>
                         </form>

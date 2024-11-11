@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Project;
+use App\Models\Jiri;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
@@ -10,13 +10,11 @@ layout('layouts.app');
 
 state([
     'drawer',
-    'projects',
-    'project',
+    'jiris',
+    'jiri',
     'user',
     'name',
     'description',
-    'linkInputs',
-    'tasks',
     'id',
     'deleteModal',
 ]);
@@ -29,59 +27,27 @@ rules(fn() => [
 ])->messages([
     'name.required' => 'Le champ est obligatoire.',
     'description.required' => 'Le champ est obligatoire.',
-    'linkInputs.*.required' => 'Le champ est obligatoire.',
-    'tasks.*.required' => 'Le champ est obligatoire.',
 ])->attributes([
 ]);
 
 mount(function () {
-    $this->drawer = false;
-    $this->user = Auth::user()->load('projects');
-    $this->projects = $this->user->projects()->orderBy('name')->get();
 
-    $this->id = 0;
-    $this->name = '';
-    $this->description = '';
-    $this->linkInputs = new Collection();
-    $this->tasks = new Collection();
 });
-
-$addLinkInput = function () {
-    $this->linkInputs->push('');
-};
-
-$removeLinkInput = function ($key) {
-    $this->linkInputs->pull($key);
-};
-
-$addTasks = function () {
-    $this->tasks->push('');
-};
-
-$removeTasks = function ($key) {
-    $this->tasks->pull($key);
-};
 
 $openCreateDrawer = function () {
     $this->resetValidation();
     $this->name = '';
     $this->description = '';
-    $this->linkInputs = new Collection();
-    $this->tasks = new Collection();
-    $this->drawer = true;
 };
 
 $closeCreateDrawer = function () {
     $this->drawer = false;
 };
 
-$edit = function (Project $project) {
-    $this->id = $project->id;
-    $this->name = $project->name;
-    $this->description = $project->description;
-    $this->linkInputs = collect(json_decode($project->links));
-    $this->tasks = collect(json_decode($project->tasks));
-    $this->drawer = true;
+$edit = function (Jiri $jiri) {
+    $this->id = $jiri->id;
+    $this->name = $jiri->name;
+    $this->description = $jiri->description;
 };
 
 $save = function () {
@@ -91,15 +57,13 @@ $save = function () {
         throw $e;
     }
 
-	Project::updateOrCreate([
+	Jiri::updateOrCreate([
         'user_id' => Auth::id(),
         'id' => $this->id,
     ],
         [
             'name' => $this->name,
             'description' => $this->description,
-            'links' => json_encode($this->linkInputs),
-            'tasks' => json_encode($this->tasks),
         ]);
 
     $this->drawer = false;
@@ -115,15 +79,15 @@ $save = function () {
 };
 
 $delete = function () {
-    $this->project->delete();
+    $this->jiri->delete();
     $this->deleteModal = false;
     Toaster::success('Projet supprimé avec succès');
     $this->mount();
 };
 
-$openDeleteModal = function (Project $project) {
+$openDeleteModal = function (Jiri $jiri) {
     $this->deleteModal = true;
-    $this->project = $project;
+    $this->jiri = $jiri;
     $this->mount();
 };
 
@@ -144,31 +108,31 @@ $closeDeleteModal = function () {
     <div>
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">
-                <p class="mt-2 text-sm text-gray-700">La liste de tout vos projets</p>
+                <p class="mt-2 text-sm text-gray-700">La liste de tout vos jiris</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                 <button wire:click="openCreateDrawer" type="button"
                         class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                    Ajouter un projet
+                    Ajouter un jiris
                 </button>
             </div>
         </div>
         <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
-            @foreach($projects as $project)
+            @foreach($jiris as $jiri)
                 <li class="flex items-center justify-between gap-x-6 py-5 p-4">
                     <div class="min-w-0">
                         <div class="flex items-start gap-x-3">
-                            <p class="text-sm/6 font-semibold text-gray-900">{{$project->name}}</p>
+                            <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}}</p>
                         </div>
                     </div>
                     <div class="flex flex-none items-center gap-x-4">
                         <button href="#"
-                                wire:click="edit({{$project}})"
+                                wire:click="edit({{$jiri}})"
                                 class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
                             Voir
-                            le projet<span class="sr-only">, </span>
+                            le Jiri<span class="sr-only">, </span>
                         </button>
-                        <button wire:click="openDeleteModal({{$project}})"
+                        <button wire:click="openDeleteModal({{$jiri}})"
                                 type="button"
                                 class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                             Supprimer
@@ -209,7 +173,7 @@ $closeDeleteModal = function () {
                                 <div class="bg-gray-900 px-4 py-6 sm:px-6">
                                     <div class="flex items-center justify-between">
                                         <h2 class="text-base font-semibold leading-6 text-white" id="slide-over-title">
-                                            Nouveau projet</h2>
+                                            Nouveau Jiri</h2>
                                         <div class="ml-3 flex h-7 items-center">
                                             <button wire:click="closeCreateDrawer" type="button"
                                                     class="relative rounded-md bg-gray-900 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
@@ -224,7 +188,7 @@ $closeDeleteModal = function () {
                                         </div>
                                     </div>
                                     <div class="mt-1">
-                                        <p class="text-sm text-gray-400">Ajouter des informations pour votre projet</p>
+                                        <p class="text-sm text-gray-400">Ajouter des informations pour votre jiri</p>
                                     </div>
                                 </div>
                                 <div class="flex flex-1 flex-col justify-between">
@@ -263,99 +227,6 @@ $closeDeleteModal = function () {
                                                         <p>{{$messages[0]}}</p>
                                                     </div>
                                                 @endif
-                                            </fieldset>
-
-
-                                            <fieldset>
-                                                <label for="addLinks"
-                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-1 ">Le
-                                                    nom
-                                                    des liens qui seront attribués aux projets
-                                                    <button class="h-6 w-6 shrink-0 ml-1 flex items-center justify-center"
-                                                            id="addLinks"
-                                                            type="button"
-                                                            value="le nom des liens qui seront attribués aux projets"
-                                                            wire:click="addLinkInput">
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                             width="6"
-                                                             height="6"
-                                                             class="h-6 w-6 shrink-0 ml-1"
-                                                             fill="none"
-                                                             viewBox="0 0 24 24"
-                                                             stroke-width="1"
-                                                             stroke="currentColor">
-                                                            <path fill="currentColor" d="M14 7v1H8v6H7V8H1V7h6V1h1v6z"/>
-                                                        </svg>
-                                                    </button>
-                                                </label>
-                                                <div class="mt-2">
-                                                    @foreach($linkInputs as $key => $input)
-                                                        <div class="flex items-center">
-                                                            <input wire:model.live="linkInputs.{{$key}}" type="text"
-                                                                   name="addLinks"
-                                                                   id="addLinks"
-                                                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                                   autocomplete="on">
-                                                            <svg width="12"
-                                                                 height="12"
-                                                                wire:click="removeLinkInput({{$key}})"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                 class="h-6 w-6 shrink-0 ml-1"
-                                                                 fill="none"
-                                                                 viewBox="0 0 24 24"
-                                                                 stroke-width="1.5"
-                                                                 stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                                            </svg>
-                                                        </div>
-                                                        <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
-                                                        @if ($messages = $errors->get('linkInputs.' .$key))
-                                                            <div class="text-sm text-red-600 space-y-1 mt-2">
-                                                                <p>{{$messages[0]}}</p>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            </fieldset>
-                                            <fieldset>
-                                                <label for="tasks"
-                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-1 ">
-                                                    Les taches attribuées au projet<button class="display-none create-project__input" id="tasks"
-                                                            type="button"
-                                                            value="le nom des liens qui seront attribués aux projets"
-                                                            wire:click="addTasks">
-                                                        <svg class="create-project__svg addLink button__icon"
-                                                             xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                             viewBox="0 0 16 16">
-                                                            <path fill="currentColor" d="M14 7v1H8v6H7V8H1V7h6V1h1v6z"/>
-                                                        </svg>
-                                                    </button>
-                                                </label>
-                                                <div class="mt-2">
-                                                    @foreach($tasks as $key => $task)
-                                                        <div>
-                                                            <input wire:model.live="tasks.{{$key}}" type="text"
-                                                                   name="addTask"
-                                                                   id="addTask"
-                                                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                                   autocomplete="on">
-                                                            <svg class=""
-                                                                 wire:click="removeTask({{$key}})"
-                                                                 xmlns="http://www.w3.org/2000/svg" width="16"
-                                                                 height="16" viewBox="0 0 16 16">
-                                                                <path fill="currentColor" fill-rule="evenodd"
-                                                                      d="m8 8.707l3.646 3.647l.708-.707L8.707 8l3.647-3.646l-.707-.708L8 7.293L4.354 3.646l-.707.708L7.293 8l-3.646 3.646l.707.708z"
-                                                                      clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </div>
-                                                        <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
-                                                        @if ($messages = $errors->get('tasks.' .$key))
-                                                            <div class="text-sm text-red-600 space-y-1 mt-2">
-                                                                <p>{{$messages[0]}}</p>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
                                             </fieldset>
                                         </div>
                                     </div>

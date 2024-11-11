@@ -14,6 +14,8 @@ class Project extends Model
         'id',
         'user_id',
         'name',
+        'links',
+        'tasks',
         'description',
     ];
 

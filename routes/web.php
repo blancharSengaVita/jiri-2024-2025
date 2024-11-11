@@ -17,6 +17,9 @@ Volt::route('projects', 'pages.projects')
     ->middleware(['auth', 'verified'])
     ->name('pages.projects');
 
+Volt::route('jiris', 'pages.jiris')
+    ->middleware(['auth', 'verified'])
+    ->name('pages.jiris');
 
 
 require __DIR__ . '/auth.php';
