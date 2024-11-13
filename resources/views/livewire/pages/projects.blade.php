@@ -35,7 +35,7 @@ rules(fn() => [
 ]);
 
 mount(function () {
-    $this->drawer = false;
+    $this->drawer = true;
     $this->user = Auth::user()->load('projects');
     $this->projects = $this->user->projects()->orderBy('name')->get();
 
@@ -268,29 +268,29 @@ $closeDeleteModal = function () {
 
                                             <fieldset>
                                                 <label for="addLinks"
-                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-1 ">Le
+                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-x-0.5 items-center">Le
                                                     nom
                                                     des liens qui seront attribués aux projets
-                                                    <button class="h-6 w-6 shrink-0 ml-1 flex items-center justify-center"
-                                                            id="addLinks"
+                                                    <button id="addLinks"
                                                             type="button"
                                                             value="le nom des liens qui seront attribués aux projets"
-                                                            wire:click="addLinkInput">
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                             width="6"
-                                                             height="6"
-                                                             class="h-6 w-6 shrink-0 ml-1"
+                                                            wire:click="addLinkInput"
+                                                            class="flex items-center justify-center">
+                                                        <svg width="12"
+                                                             height="12"
+                                                             xmlns="http://www.w3.org/2000/svg"
+                                                             class="h-6 w-6 shrink-0 ml-1 rotate-45"
                                                              fill="none"
                                                              viewBox="0 0 24 24"
-                                                             stroke-width="1"
+                                                             stroke-width="1.5"
                                                              stroke="currentColor">
-                                                            <path fill="currentColor" d="M14 7v1H8v6H7V8H1V7h6V1h1v6z"/>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                                                         </svg>
                                                     </button>
                                                 </label>
-                                                <div class="mt-2">
+                                                <div>
                                                     @foreach($linkInputs as $key => $input)
-                                                        <div class="flex items-center">
+                                                        <div class="flex items-center mt-4">
                                                             <input wire:model.live="linkInputs.{{$key}}" type="text"
                                                                    name="addLinks"
                                                                    id="addLinks"
@@ -305,10 +305,10 @@ $closeDeleteModal = function () {
                                                                  viewBox="0 0 24 24"
                                                                  stroke-width="1.5"
                                                                  stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                                                             </svg>
                                                         </div>
-                                                        <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
+                                                        <p class="text-xs text-gray-400 mt-1 mb-4">Ce champ est obligatoire*</p>
                                                         @if ($messages = $errors->get('linkInputs.' .$key))
                                                             <div class="text-sm text-red-600 space-y-1 mt-2">
                                                                 <p>{{$messages[0]}}</p>
@@ -319,34 +319,44 @@ $closeDeleteModal = function () {
                                             </fieldset>
                                             <fieldset>
                                                 <label for="tasks"
-                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-1 ">
-                                                    Les taches attribuées au projet<button class="display-none create-project__input" id="tasks"
+                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-x-0.5">
+                                                    Les tâches attribuées au projet
+                                                    <button id="tasks"
                                                             type="button"
-                                                            value="le nom des liens qui seront attribués aux projets"
-                                                            wire:click="addTasks">
-                                                        <svg class="create-project__svg addLink button__icon"
-                                                             xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                             viewBox="0 0 16 16">
-                                                            <path fill="currentColor" d="M14 7v1H8v6H7V8H1V7h6V1h1v6z"/>
+                                                            value="les tâches qui seront attribués aux projets"
+                                                            wire:click="addTasks"
+                                                            class="flex items-center justify-center">
+                                                        <svg width="12"
+                                                             height="12"
+                                                             xmlns="http://www.w3.org/2000/svg"
+                                                             class="h-6 w-6 shrink-0 ml-1 rotate-45"
+                                                             fill="none"
+                                                             viewBox="0 0 24 24"
+                                                             stroke-width="1.5"
+                                                             stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                                                         </svg>
                                                     </button>
                                                 </label>
-                                                <div class="mt-2">
+                                                <div>
                                                     @foreach($tasks as $key => $task)
-                                                        <div>
+                                                        <div class="flex items-center mt-4">
                                                             <input wire:model.live="tasks.{{$key}}" type="text"
                                                                    name="addTask"
                                                                    id="addTask"
                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                                    autocomplete="on">
-                                                            <svg class=""
-                                                                 wire:click="removeTask({{$key}})"
-                                                                 xmlns="http://www.w3.org/2000/svg" width="16"
-                                                                 height="16" viewBox="0 0 16 16">
-                                                                <path fill="currentColor" fill-rule="evenodd"
-                                                                      d="m8 8.707l3.646 3.647l.708-.707L8.707 8l3.647-3.646l-.707-.708L8 7.293L4.354 3.646l-.707.708L7.293 8l-3.646 3.646l.707.708z"
-                                                                      clip-rule="evenodd"/>
-                                                            </svg>
+                                                            <svg
+                                                                wire:click="removeTasks({{$key}})"
+                                                                width="12"
+                                                                 height="12"
+                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                 class="h-6 w-6 shrink-0 ml-1"
+                                                                 fill="none"
+                                                                 viewBox="0 0 24 24"
+                                                                 stroke-width="1.5"
+                                                                 stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                                                         </div>
                                                         <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
                                                         @if ($messages = $errors->get('tasks.' .$key))
