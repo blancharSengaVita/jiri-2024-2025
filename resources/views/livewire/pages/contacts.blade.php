@@ -58,6 +58,8 @@ mount(function () {
 
 $openCreateContactDrawer = function () {
     $this->resetValidation();
+    $this->drawer = true;
+    $this->id = 0;
     $this->name = '';
     $this->email = '';
     $this->phone = '';
@@ -272,7 +274,7 @@ $closeDeleteModal = function () {
             </div>
         </div>
     </div>
-    <div :class="open ? 'relative z-10' : 'hidden'" class="" aria-labelledby="slide-over-title" role="dialog"
+    <div :class="open ? 'relative z-10' : 'hidden'" class="z-50" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
         <div class="fixed inset-0"></div>
@@ -376,7 +378,7 @@ $closeDeleteModal = function () {
                                                         class="block text-sm font-medium leading-6 text-gray-900">
                                                     Photo de profil
                                                 </label>
-                                                @if($name)
+                                                @if($id !== 0)
                                                     <div class="mt-2 h-24 w-24 flex-shrink-0">
                                                         <img class="h-24 w-24 rounded-full"
                                                              src="{{ $path ?  asset($path) : 'https://ui-avatars.com/api/?length=1&name='. $name}}"

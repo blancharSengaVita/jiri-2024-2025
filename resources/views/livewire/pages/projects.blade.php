@@ -35,7 +35,7 @@ rules(fn() => [
 ]);
 
 mount(function () {
-    $this->drawer = true;
+    $this->drawer = false;
     $this->user = Auth::user()->load('projects');
     $this->projects = $this->user->projects()->orderBy('name')->get();
 
@@ -64,6 +64,7 @@ $removeTasks = function ($key) {
 
 $openCreateDrawer = function () {
     $this->resetValidation();
+    $this->drawer = true;
     $this->name = '';
     $this->description = '';
     $this->linkInputs = new Collection();
@@ -178,9 +179,8 @@ $closeDeleteModal = function () {
                 </li>
             @endforeach
         </ul>
-
     </div>
-    <div :class="open ? 'relative z-10' : 'hidden'" class="" aria-labelledby="slide-over-title" role="dialog"
+    <div :class="open ? 'relative z-10' : 'hidden'" class="z-50" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
         <div class="fixed inset-0"></div>
@@ -273,19 +273,21 @@ $closeDeleteModal = function () {
                                                     des liens qui seront attribués aux projets
                                                     <button id="addLinks"
                                                             type="button"
-                                                            value="le nom des liens qui seront attribués aux projets"
+                                                            value="L'intitulé des liens qui seront attribués aux projets"
                                                             wire:click="addLinkInput"
-                                                            class="flex items-center justify-center">
-                                                        <svg width="12"
-                                                             height="12"
-                                                             xmlns="http://www.w3.org/2000/svg"
-                                                             class="h-6 w-6 shrink-0 ml-1 rotate-45"
-                                                             fill="none"
-                                                             viewBox="0 0 24 24"
-                                                             stroke-width="1.5"
-                                                             stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                                        </svg>
+                                                            class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    >
+{{--                                                        <svg width="12"--}}
+{{--                                                             height="12"--}}
+{{--                                                             xmlns="http://www.w3.org/2000/svg"--}}
+{{--                                                             class="h-6 w-6 shrink-0 ml-1 rotate-45"--}}
+{{--                                                             fill="none"--}}
+{{--                                                             viewBox="0 0 24 24"--}}
+{{--                                                             stroke-width="1.5"--}}
+{{--                                                             stroke="currentColor">--}}
+{{--                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />--}}
+{{--                                                        </svg>--}}
+                                                        Ajouter
                                                     </button>
                                                 </label>
                                                 <div>
@@ -294,6 +296,7 @@ $closeDeleteModal = function () {
                                                             <input wire:model.live="linkInputs.{{$key}}" type="text"
                                                                    name="addLinks"
                                                                    id="addLinks"
+                                                                   placeholder="https://www.portfolio.com/"
                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                                    autocomplete="on">
                                                             <svg width="12"

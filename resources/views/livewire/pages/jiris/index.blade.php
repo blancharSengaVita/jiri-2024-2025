@@ -14,30 +14,38 @@ state([
     'jiri',
     'user',
     'name',
-    'description',
+    'date',
     'id',
     'deleteModal',
 ]);
 
 rules(fn() => [
     'name' => 'required',
-    'description' => 'required',
-    'linkInputs.*' => 'required',
-    'tasks.*' => 'required',
+    'date' => 'required|date',
 ])->messages([
     'name.required' => 'Le champ est obligatoire.',
-    'description.required' => 'Le champ est obligatoire.',
+    'date.required' => 'Le champ est obligatoire.',
+    'date.date' => 'Le champ doit être une date.',
 ])->attributes([
 ]);
 
 mount(function () {
+    $this->drawer = false;
+    $this->user = Auth::user()->load('jiris');
+    $this->jiris = $this->user->jiris()->orderBy('name')->get();
 
+    $this->id = 0;
+    $this->name = '';
+    $this->email = '';
+    $this->phone = '';
+    $this->photo = null;
 });
 
 $openCreateDrawer = function () {
     $this->resetValidation();
+    $this->drawer = true;
     $this->name = '';
-    $this->description = '';
+    $this->date = '';
 };
 
 $closeCreateDrawer = function () {
@@ -45,9 +53,10 @@ $closeCreateDrawer = function () {
 };
 
 $edit = function (Jiri $jiri) {
+    $this->drawer = true;
     $this->id = $jiri->id;
     $this->name = $jiri->name;
-    $this->description = $jiri->description;
+    $this->date = $jiri->date;
 };
 
 $save = function () {
@@ -63,7 +72,7 @@ $save = function () {
     ],
         [
             'name' => $this->name,
-            'description' => $this->description,
+            'date' => $this->date,
         ]);
 
     $this->drawer = false;
@@ -104,7 +113,7 @@ $closeDeleteModal = function () {
     }"
 >
 
-    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des projets</h1>
+    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des jiris</h1>
     <div>
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">
@@ -117,7 +126,8 @@ $closeDeleteModal = function () {
                 </button>
             </div>
         </div>
-        <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
+        @if(count($jiris))
+        <ul role="list" class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
             @foreach($jiris as $jiri)
                 <li class="flex items-center justify-between gap-x-6 py-5 p-4">
                     <div class="min-w-0">
@@ -126,12 +136,11 @@ $closeDeleteModal = function () {
                         </div>
                     </div>
                     <div class="flex flex-none items-center gap-x-4">
-                        <button href="#"
-                                wire:click="edit({{$jiri}})"
+                        <a href="{{route('pages.jiris.edit', $jiri)}}"
                                 class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
                             Voir
                             le Jiri<span class="sr-only">, </span>
-                        </button>
+                        </a>
                         <button wire:click="openDeleteModal({{$jiri}})"
                                 type="button"
                                 class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
@@ -142,7 +151,9 @@ $closeDeleteModal = function () {
                 </li>
             @endforeach
         </ul>
-
+        @else
+            <p class="mt-4">Aucun jiri veuillez en crée un ici +</p>
+        @endif
     </div>
     <div :class="open ? 'relative z-10' : 'hidden'" class="" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
@@ -211,18 +222,16 @@ $closeDeleteModal = function () {
                                                 @endif
                                             </fieldset>
                                             <fieldset>
-                                                <label for="description"
-                                                       class="block text-sm font-medium leading-6 text-gray-900">Description<span class="text-red-500">*</span></label>
+                                                <label for="date"
+                                                       class="block text-sm font-medium leading-6 text-gray-900">Date<span class="text-red-500">*</span></label>
                                                 <div class="mt-2">
-                                                    <textarea wire:model="description" type="text" name="description"
-                                                              id="description"
-                                                              rows="10"
-                                                              cols="40"
+                                                    <input wire:model="date" type="date" name="date"
+                                                              id="date"
                                                               class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                              autocomplete="on"></textarea>
+                                                              autocomplete="on">
                                                     <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
                                                 </div>
-                                                @if ($messages = $errors->get('description'))
+                                                @if ($messages = $errors->get('date'))
                                                     <div class="text-sm text-red-600 space-y-1 mt-2">
                                                         <p>{{$messages[0]}}</p>
                                                     </div>
@@ -234,7 +243,7 @@ $closeDeleteModal = function () {
                             </div>
                             <div class="flex flex-shrink-0 justify-end px-4 py-4 bg-white">
                                 <button type="button"
-                                        wire:click="closeCreateDrawer"
+                                        wire:click="closeCreateContactDrawer"
                                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                     Annuler
                                 </button>

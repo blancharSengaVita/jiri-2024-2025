@@ -20,7 +20,7 @@ return new class extends Migration
     }
     public function down(): void
     {
-        Schema::table('contacts', static function (Blueprint $table) {
+        Schema::table('projects', static function (Blueprint $table) {
             $table->dropForeign(['user_id']);
         });
         Schema::dropIfExists('projects');

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('jiris', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('starting_at')->nullable();
             $table->enum('status', ['en cours', 'non commencé', 'terminé', 'en pause'])->default('non commencé');
@@ -25,6 +26,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('jiris', static function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
         Schema::dropIfExists('jiris');
     }
 };

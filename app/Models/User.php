@@ -35,6 +35,12 @@ class User extends Authenticatable
             ->hasMany(Project::class);
     }
 
+    public function Jiris(): HasMany
+    {
+        return $this
+            ->hasMany(Jiri::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
