@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use function Livewire\Volt\{layout, mount, rules, state, computed, usesFileUploads};
+
 usesFileUploads();
 layout('layouts.app');
 
@@ -159,7 +160,7 @@ $filteredContact = computed(function () {
     $result = auth()
         ->user()
         ?->contacts()
-//        ->where('name', 'like', '%' . $this->search . '%')
+        ->where('name', 'like', '%' . $this->search . '%')
         ->whereDoesntHave('attendances', function ($query) {
             $query->where('jiri_id', $this->jiri->id);
         })
@@ -175,7 +176,7 @@ $addToJiri = function (Contact $contact) {
         [
             'role' => 'student',
         ]);
-    $this->mount($this->jiri);
+	$this->mount($this->jiri);
 };
 
 $save = function () {
@@ -194,6 +195,7 @@ $save = function () {
             'name' => $this->name,
             'starting_at' => $this->date,
         ]);
+
 
     if ($this->id === 0) {
         Toaster::success('Jiri ajouté avec succès');
@@ -310,8 +312,7 @@ $closeDeleteModal = function () {
         <div class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4">
             <h2 class="text-base/7 font-semibold text-gray-900">Etudiants</h2>
             <p class="mt-1 text-sm/6 text-gray-500">Ajouter ou retirer des étudiants aux jiris.</p>
-            <div
-                class="flex gap-x-4 items-center mb-4">
+            <div class="flex gap-x-4 items-center mb-4">
                 <div
                     class="w-auto">
                     <label
@@ -341,7 +342,6 @@ $closeDeleteModal = function () {
                                       clip-rule="evenodd"/>
                             </svg>
                         </button>
-{{--                        {{$this->filteredContact}}--}}
                         <ul
                             x-data="{
                                                                                 searchValue: $wire.entangle('search'),
@@ -350,59 +350,57 @@ $closeDeleteModal = function () {
                             x-show="isFocused"
                             class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                             id="options" role="listbox">
-                            {{--                            <!----}}
-                            {{--                              Combobox option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.--}}
+                                                        <!--
+                                                          Combobox option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
 
-                            {{--                              Active: "text-white bg-indigo-600", Not Active: "text-gray-900"--}}
-                            {{--                            -->--}}
+                                                          Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
+                                                        -->
                             @if(!count($this->filteredContact))
                                 <li class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
                                     id="option-0" role="option" tabindex="-1">
                                     <p>Aucun résultat</p>
                                 </li>
                             @endif
-                                @foreach($this->filteredContact as $contact)
-                                    <li
-                                        wire:key="contact_search-{{$contact->id}}"
-                                        wire:click="addToJiri({{$contact->id}})"
-                                        x-data="{ isHovered: false }"
-                                        @mouseenter="isHovered = true"
-                                        @mouseleave="isHovered = false"
-                                        :class="isHovered ? 'text-white bg-indigo-600' : 'text-gray-900'"
-                                        class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
-                                        id="option-0" role="option" tabindex="-1"
-                                    >
-                                        <div class="flex items-center">
-                                            {{--                                                                                                                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="h-6 w-6 flex-shrink-0 rounded-full">--}}
-                                            <!-- Selected: "font-semibold" -->
+                            @foreach($this->filteredContact as $contact)
+                                <li
+                                    wire:key="contact_search-{{$contact->id}}"
+                                    wire:click="addToJiri({{$contact->id}})"
+                                    x-data="{ isHovered: false }"
+                                    @mouseenter="isHovered = true"
+                                    @mouseleave="isHovered = false"
+                                    :class="isHovered ? 'text-white bg-indigo-600' : 'text-gray-900'"
+                                    class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
+                                    id="option-0" role="option" tabindex="-1"
+                                >
+                                    <div class="flex items-center">
+                                        <!-- Selected: "font-semibold" -->
 
-                                            <img class="h-8 w-8 rounded-full"
-                                                 src="{{$contact->photo ? asset($contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
-                                                 alt="Photo de {{$contact->name}}">
-                                            <span class="ml-3 truncate">{{ $contact->name }}</span>
+                                        <img class="h-8 w-8 rounded-full"
+                                             src="{{$contact->photo ? asset($contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
+                                             alt="Photo de {{$contact->name}}">
+                                        <span class="ml-3 truncate">{{ $contact->name }}</span>
 
-                                        </div>
+                                    </div>
 
-                                        <!--
-                                          Checkmark, only display for selected option.
+                                    <!--
+                                      Checkmark, only display for selected option.
 
-                                          Active: "text-white", Not Active: "text-indigo-600"
-                                        -->
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-                                                                                        <svg x-show="isHovered"
-                                                                                             class="h-5 w-5 text-indigo-500 "
-                                                                                             viewBox="0 0 24 24"
-                                                                                             stroke-width="2px"
-                                                                                             stroke="white" fill="none"
-                                                                                             aria-hidden="true">
-                                                                                            <path stroke-linecap="round"
-                                                                                                  stroke-linejoin="round"
-                                                                                                  d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
-                                                                                        </svg>
-                                                                                    </span>
-                                    </li>
-                                @endforeach
-
+                                      Active: "text-white", Not Active: "text-indigo-600"
+                                    -->
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                                        <svg x-show="isHovered"
+                                             class="h-5 w-5 text-indigo-500 "
+                                             viewBox="0 0 24 24"
+                                             stroke-width="2px"
+                                             stroke="white" fill="none"
+                                             aria-hidden="true">
+                                            <path stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
+                                        </svg>
+                                    </span>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>
@@ -416,9 +414,8 @@ $closeDeleteModal = function () {
             ">
                 @foreach($students as $student)
                     <div class="flex items-center justify-between gap-x-4 py-6 px-4 rounded-xl border border-gray-200">
-                        <img class="h-8 w-8 rounded-full"
-                             src="{{$student->photo ? asset($student->photo) : 'https://ui-avatars.com/api/?length=1&name='. $student->name}}"
-                             alt="Photo de {{$contact->name}}">
+                        <img class="h-8 w-8 rounded-full" src="{{$student->photo ? asset($student->photo) : 'https://ui-avatars.com/api/?length=1&name='. $student->name}}"
+                             alt="Photo de {{$student->name}}"/>
                         <div class="font-medium text-gray-900">{{$student->name}}</div>
                         <button wire:click="deleteFromJiri({{$student}})" type="button"
                                 class="font-semibold text-indigo-600 hover:text-indigo-500">
@@ -432,12 +429,12 @@ $closeDeleteModal = function () {
                 @endforeach
             </div>
 
-            <div class="flex border-t border-gray-100 pt-6">
-                <button wire:click="openCreateContactDrawer" type="button"
-                        class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"><span
-                        aria-hidden="true">+</span> Ajouter un étudiant qui n'existe pas dans les contacts
-                </button>
-            </div>
+{{--            <div class="flex border-t border-gray-100 pt-6">--}}
+{{--                <button wire:click="openCreateContactDrawer" type="button"--}}
+{{--                        class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500"><span--}}
+{{--                        aria-hidden="true">+</span> Ajouter un étudiant qui n'existe pas dans les contacts--}}
+{{--                </button>--}}
+{{--            </div>--}}
         </div>
 
 
@@ -686,7 +683,7 @@ $closeDeleteModal = function () {
                             </div>
                             <div class="flex flex-shrink-0 justify-end px-4 py-4">
                                 <button type="button"
-                                        wire:click="closeCreateContactDrawer"
+                                        wire:click="closeCreateDrawer"
                                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                     Annuler
                                 </button>

@@ -274,14 +274,34 @@ $closeDeleteModal = function () {
             </div>
         </div>
     </div>
-    <div :class="open ? 'relative z-10' : 'hidden'" class="z-50" aria-labelledby="slide-over-title" role="dialog"
+    <div
+        x-trap.inert="open"
+        x-on:keydown.escape="open = false"
+        x-show="open"
+{{--         :class="open ? 'relative' : 'hidden'"--}}
+         class="z-50" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
+{{--        Entering: "transform transition ease-in-out duration-500 sm:duration-700"--}}
+{{--        From: "translate-x-full"--}}
+{{--        To: "translate-x-0"--}}
+{{--        Leaving: "transform transition ease-in-out duration-500 sm:duration-700"--}}
+{{--        From: "translate-x-0"--}}
+{{--        To: "translate-x-full"--}}
         <div class="fixed inset-0"></div>
 
         <div class="fixed inset-0 overflow-hidden">
             <div class="absolute inset-0 overflow-hidden">
-                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16"
+                     x-show="open"
+{{--                     x-transition--}}
+                     x-transition:enter="transform transition ease-in-out duration-200"
+                     x-transition:enter-start="translate-x-full"
+                     x-transition:enter-end="translate-x-0"
+                     x-transition:leave="transform transition ease-in-out duration-200"
+                     x-transition:leave-start="translate-x-0"
+                     x-transition:leave-end="translate-x-full"
+                >
                     <!--
                       Slide-over panel, show/hide based on slide-over state.
 
@@ -294,7 +314,7 @@ $closeDeleteModal = function () {
                     -->
                     <div class="pointer-events-auto w-screen max-w-md">
                         <form wire:submit.prevent="saveContact"
-                              @click.away="open = false "
+                              @click.down.outside="open = false "
                               enctype="multipart/form-data"
                               class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl"
                         >

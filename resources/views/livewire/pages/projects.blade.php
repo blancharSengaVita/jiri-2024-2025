@@ -92,7 +92,7 @@ $save = function () {
         throw $e;
     }
 
-	Project::updateOrCreate([
+    Project::updateOrCreate([
         'user_id' => Auth::id(),
         'id' => $this->id,
     ],
@@ -180,7 +180,7 @@ $closeDeleteModal = function () {
             @endforeach
         </ul>
     </div>
-    <div :class="open ? 'relative z-10' : 'hidden'" class="z-50" aria-labelledby="slide-over-title" role="dialog"
+    <div :class="open ? 'relative z-10' : 'hidden'" class="z-40" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
         <div class="fixed inset-0"></div>
@@ -266,43 +266,96 @@ $closeDeleteModal = function () {
                                             </fieldset>
 
 
-                                            <fieldset>
-                                                <label for="addLinks"
-                                                       class="text-sm font-medium leading-6 text-gray-900 flex gap-x-0.5 items-center">Le
-                                                    nom
-                                                    des liens qui seront attribués aux projets
-                                                    <button id="addLinks"
-                                                            type="button"
-                                                            value="L'intitulé des liens qui seront attribués aux projets"
-                                                            wire:click="addLinkInput"
-                                                            class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                                    >
-{{--                                                        <svg width="12"--}}
-{{--                                                             height="12"--}}
-{{--                                                             xmlns="http://www.w3.org/2000/svg"--}}
-{{--                                                             class="h-6 w-6 shrink-0 ml-1 rotate-45"--}}
-{{--                                                             fill="none"--}}
-{{--                                                             viewBox="0 0 24 24"--}}
-{{--                                                             stroke-width="1.5"--}}
-{{--                                                             stroke="currentColor">--}}
-{{--                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />--}}
-{{--                                                        </svg>--}}
-                                                        Ajouter
-                                                    </button>
-                                                </label>
+                                            <fieldset
+                                                class="relative"
+                                                x-data="{
+{{--                                            tooltip: false--}}
+                                            tooltip: false
+{{--                                            , tooltipOffset: 0--}}
+                                            }">
+{{--                                                <div x-cloak--}}
+{{--                                                     x-show="tooltip"--}}
+{{--                                                     class="absolute z-50 -left-24">--}}
+{{--                                                   <div class="flex bg-white flex items-center justify-between p-4 rounded-xl border border-gray-200 text-sm items-start">--}}
+{{--                                                       <small class="">--}}
+{{--                                                           Indiquez les différents types de liens que les étudiants devront--}}
+{{--                                                           fournir pour compléter ce projet. Chaque lien correspond à une--}}
+{{--                                                           ressource ou un livrable attendu (par exemple : lien du dépôt de--}}
+{{--                                                           code source, lien de la maquette, lien du site en production,--}}
+{{--                                                           etc.).</small>--}}
+{{--                                                       <svg width="12"--}}
+{{--                                                            height="12"--}}
+{{--                                                            xmlns="http://www.w3.org/2000/svg"--}}
+{{--                                                            class="h-6 w-6 shrink-0 ml-1"--}}
+{{--                                                            fill="none"--}}
+{{--                                                            viewBox="0 0 24 24"--}}
+{{--                                                            stroke-width="1.5"--}}
+{{--                                                            stroke="currentColor">--}}
+{{--                                                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>--}}
+{{--                                                       </svg>--}}
+{{--                                                   </div>--}}
+{{--                                                </div>--}}
+
+                                                <div
+                                                     class="relative">
+                                                    <svg
+                                                         width="12"
+                                                         height="12"
+                                                         xmlns="http://www.w3.org/2000/svg"
+                                                         class="h-6 w-6"
+                                                         fill="none"
+                                                         viewBox="0 0 24 24"
+                                                         stroke-width="1.5"
+                                                         stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                    </svg>
+
+                                                    <div x-cloak
+                                                         x-show="tooltip"
+{{--                                                         x-ref="tooltip"--}}
+{{--                                                         :style="{ top: tooltipOffset + 'px' }"--}}
+                                                         class="absolute z-50
+{{--                                                         left-1/2 --}}
+{{--                                                         transform --}}
+{{--                                                         -translate-x-1/2 --}}
+                                                         bg-white p-4 rounded-xl border border-gray-200 text-sm shadow">
+                                                        <small>Indiquez les différents types de liens que les étudiants devront fournir pour compléter ce projetChaque lien correspond à une ressource ou un livrable attendu (par exemple : lien du dépôt code source, lien de la maquette, lien du site en production, etc.).      </small>
+                                                                                                                </div>
+                                                                                                            </div>
+
+
+                                                                                                            <div class="flex">
+                                                                                                                <svg @click="tooltip = true;
+                                                            {{--                                                    tooltipOffset = $refs.tooltip.scrollHeight + 8--}}
+                                                    "
+                                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+                                                    </svg>
+                                                    <label for="addLinks"
+                                                           class="text-sm font-medium leading-6 text-gray-900 flex gap-x-0.5 items-center">
+                                                        Liens requis
+                                                        <button id="addLinks"
+                                                                type="button"
+                                                                value="L'intitulé des liens qui seront attribués aux projets"
+                                                                wire:click="addLinkInput"
+                                                                class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                        >Ajouter
+                                                        </button>
+                                                    </label>
+                                                </div>
                                                 <div>
                                                     @foreach($linkInputs as $key => $input)
                                                         <div class="flex items-center mt-4">
                                                             <input wire:model.live="linkInputs.{{$key}}" type="text"
                                                                    name="addLinks"
                                                                    id="addLinks"
-                                                                   placeholder="https://www.portfolio.com/"
+                                                                   placeholder="Lien du projet"
                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                                    autocomplete="on">
                                                             <svg width="12"
                                                                  height="12"
-                                                                wire:click="removeLinkInput({{$key}})"
-                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                 wire:click="removeLinkInput({{$key}})"
+                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                  class="h-6 w-6 shrink-0 ml-1"
                                                                  fill="none"
                                                                  viewBox="0 0 24 24"
@@ -311,7 +364,8 @@ $closeDeleteModal = function () {
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                                                             </svg>
                                                         </div>
-                                                        <p class="text-xs text-gray-400 mt-1 mb-4">Ce champ est obligatoire*</p>
+                                                        <p class="text-xs text-gray-400 mt-1 mb-4">Ce champ est
+                                                            obligatoire*</p>
                                                         @if ($messages = $errors->get('linkInputs.' .$key))
                                                             <div class="text-sm text-red-600 space-y-1 mt-2">
                                                                 <p>{{$messages[0]}}</p>
@@ -337,7 +391,7 @@ $closeDeleteModal = function () {
                                                              viewBox="0 0 24 24"
                                                              stroke-width="1.5"
                                                              stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                                                         </svg>
                                                     </button>
                                                 </label>
@@ -352,16 +406,17 @@ $closeDeleteModal = function () {
                                                             <svg
                                                                 wire:click="removeTasks({{$key}})"
                                                                 width="12"
-                                                                 height="12"
-                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                 class="h-6 w-6 shrink-0 ml-1"
-                                                                 fill="none"
-                                                                 viewBox="0 0 24 24"
-                                                                 stroke-width="1.5"
-                                                                 stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                                height="12"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                class="h-6 w-6 shrink-0 ml-1"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke-width="1.5"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                                                         </div>
-                                                        <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
+                                                        <p class="text-xs text-gray-400 mt-2">Ce champ est
+                                                            obligatoire*</p>
                                                         @if ($messages = $errors->get('tasks.' .$key))
                                                             <div class="text-sm text-red-600 space-y-1 mt-2">
                                                                 <p>{{$messages[0]}}</p>
