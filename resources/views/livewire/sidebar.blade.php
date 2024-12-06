@@ -39,7 +39,7 @@ $openMobileMenu = function () {
     }"
 >
     <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
-    <div :class=" open ? 'relative z-50 ' : 'hidden'" role="dialog" aria-modal="true">
+    <div x-cloak x-show="open" :class=" open ? 'z-50 ' : ''" role="dialog" aria-modal="true">
         <!--
           Off-canvas menu backdrop, show/hide based on off-canvas menu state.
 

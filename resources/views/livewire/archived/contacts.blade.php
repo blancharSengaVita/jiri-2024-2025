@@ -51,15 +51,15 @@ mount(function () {
 });
 
 $openDrawer = function () {
-    $this->dispatch('openDrawer')->to('partials.contacts-drawers');
+    $this->dispatch('openDrawer')->to('pages.contacts-drawers');
 };
 
 $editContact = function(Contact $contact) {
-    $this->dispatch('editThisContact',  contact: $contact)->to('partials.contacts-drawers');
+    $this->dispatch('editThisContact',  contact: $contact)->to('pages.contacts-drawers');
 };
 
 $openDeleteModal = function (Contact $contact) {
-    $this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('partials.delete-modal');
+    $this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('pages.delete-modal');
 };
 
 on(['refreshComponent' => function () {
@@ -149,6 +149,7 @@ on(['refreshComponent' => function () {
                                         </svg>
                                     </button>
                                 </td>
+
                             </tr>
                         @endforeach
                         </tbody>
@@ -157,6 +158,6 @@ on(['refreshComponent' => function () {
             </div>
         </div>
     </div>
-    <livewire:partials.contacts-drawers/>
-    <livewire:partials.delete-modal/>
+    <livewire:pages.contacts-drawers/>
+    <livewire:pages.delete-modal @refreshComponent="$refresh"/>
 </div>
