@@ -16,7 +16,7 @@ state([
     'drawer',
     'contacts',
     'contact',
-    'jiri',
+    'jiri' => null,
     'role',
     'user',
     'name',
@@ -52,7 +52,6 @@ mount(function () {
     $this->drawer = false;
     $this->user = Auth::user();
     $this->modelName = 'contact';
-    $this->stringNew = 'Nouveau';
 
 
     $this->id = 0;
@@ -63,9 +62,8 @@ mount(function () {
 });
 
 
-$openCreateContactDrawer = function () {
+$create = function () {
     $this->resetValidation();
-    $this->drawer = true;
     $this->id = 0;
     $this->name = '';
     $this->email = '';
@@ -74,11 +72,7 @@ $openCreateContactDrawer = function () {
     $this->drawer = true;
 };
 
-$closeCreateContactDrawer = function () {
-    $this->drawer = false;
-};
-
-$editContact = function (Contact $contact) {
+$edit = function (Contact $contact) {
     $this->id = $contact->id;
     $this->name = $contact->name;
     $this->email = $contact->email;
@@ -137,13 +131,13 @@ $saveContact = function () {
         Toaster::success('Donnée modifiée avec succès');
     };
 
-    if ($this->jiri !== null) {
+    if ($this->jiri) {
         Attendance::updateOrInsert([
             'jiri_id' => $this->jiri->id,
             'contact_id' => $newContact->id,
         ],
             [
-                'role' => 'student',
+                'role' => $this->role,
             ]);
 
     }
@@ -151,17 +145,21 @@ $saveContact = function () {
     $this->dispatch('refreshComponent');
 };
 
+$close = function (){
+	$this->drawer = false;
+};
+
 on([
-    'openDrawer' => function (string $role = null, Jiri $jiri = null, Contact $contact) {
-        $this->openCreateContactDrawer();
-        $this->jiri = $jiri;
-        $this->role = $role;
-        $this->editContact($contact);
-        $this->modelName = $this->role === null ? 'contact' : ($this->role === 'student' ? 'étudiant' : 'évaluateur');
+    'openCreateContactDrawer' => function (string $role = null, Jiri|null $jiri = null) {
+        $this->create();
+		if ($jiri->id){
+            $this->jiri = $jiri;
+            $this->role = $role;
+            $this->modelName = $this->role === null ? 'contact' : ($this->role === 'student' ? 'étudiant' : 'évaluateur');
+        }
     },
-    'editThisContact' => function (Contact $contact) {
-        $this->openCreateContactDrawer();
-        $this->editContact($contact);
+    'openEditContactDrawer' => function (Contact $contact) {
+        $this->edit($contact);
     },
 ]);
 ?>
@@ -219,9 +217,9 @@ on([
                                 <div class="bg-gray-900 px-4 py-6 sm:px-6">
                                     <div class="flex items-center justify-between">
                                         <h2 class="text-base font-semibold leading-6 text-white" id="slide-over-title">
-                                            Nouveau {{$modelName}}</h2>
+                                            Créer un {{$modelName}}</h2>
                                         <div class="ml-3 flex h-7 items-center">
-                                            <button wire:click="closeCreateContactDrawer" type="button"
+                                            <button wire:click="close" type="button"
                                                     class="relative rounded-md bg-gray-900 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
                                                 <span class="absolute -inset-2.5"></span>
                                                 <span class="sr-only">Fermer la modal</span>
@@ -350,7 +348,7 @@ on([
                             </div>
                             <div class="flex flex-shrink-0 justify-end px-4 py-4">
                                 <button type="button"
-                                        wire:click="closeCreateContactDrawer"
+                                        wire:click="close"
                                         class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                     Annuler
                                 </button>

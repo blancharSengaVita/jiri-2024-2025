@@ -5,14 +5,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Masmerise\Toaster\Toaster;
 use Intervention\Image\Laravel\Facades\Image;
-use function Livewire\Volt\{layout, mount, rules, state, usesFileUploads,on};
+use function Livewire\Volt\{layout, mount, rules, state, usesFileUploads,on, with, usesPagination};
 
+
+usesPagination();
 usesFileUploads();
+
 layout('layouts.app');
 
 state([
     'drawer',
-    'contacts',
+//    'contacts',
     'contact',
     'user',
     'name',
@@ -24,38 +27,20 @@ state([
     'deleteModal',
 ]);
 
-rules(fn() => [
-    'name' => 'required',
-    'email' => 'required|email',
-    'phone' => [
-        'required',
-        'regex:/^[\d\s()+-]+$/',
-    ],
-    'photo' => 'sometimes|nullable|image|max:5120',
-])->messages([
-    'name.required' => 'Le champ est obligatoire.',
-    'email.required' => 'Le champ est obligatoire.',
-    'email.email' => 'Le champ doit être un email.',
-    'phone.required' => 'Le champ est obligatoire.',
-    'phone.numeric' => 'Le champ doit être composé de chiffre',
-    'phone.regex' => 'Le champ doit contenir uniquement des chiffres, des espaces, des parenthèses, et le signe "+".',
-    'photo.image' => 'Le fichier doit être une photo en JPEG, JPG ou PNG',
-    'photo.max' => 'La taille de l\'image doit être inferieur à 5mo',
-])->attributes([
-]);
-
 mount(function () {
     $this->drawer = false;
     $this->user = Auth::user()->load('contacts');
-    $this->contacts = $this->user->contacts()->orderBy('name')->get();
+//    $this->contacts = $this->user->contacts()->orderBy('name')->get();
 });
 
-$openDrawer = function () {
-    $this->dispatch('openDrawer')->to('partials.contacts-drawers');
+with(fn () => ['contacts' => $this->user->contacts()->orderBy('name')->paginate(10)]);
+
+$create = function () {
+    $this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
 };
 
-$editContact = function(Contact $contact) {
-    $this->dispatch('editThisContact',  contact: $contact)->to('partials.contacts-drawers');
+$edit = function(Contact $contact) {
+    $this->dispatch('openEditContactDrawer',  contact: $contact)->to('partials.contacts-drawers');
 };
 
 $openDeleteModal = function (Contact $contact) {
@@ -81,7 +66,7 @@ on(['refreshComponent' => function () {
                 <p class="mt-2 text-sm text-gray-700">La liste de tout vos contacts</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <button wire:click="openDrawer" type="button"
+                <button wire:click="create" type="button"
                         class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                     Ajouter un contact
                 </button>
@@ -129,7 +114,7 @@ on(['refreshComponent' => function () {
                                     <div class="font-medium text-gray-900">{{ $contact->phone ?: 'Pas de numéro' }}</div>
                                 </td>
                                 <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-sm font-medium">
-                                    <button wire:click="editContact({{$contact}})" type="button"
+                                    <button wire:click="edit({{$contact}})" type="button"
                                             class="text-gray-700 group rounded-md p-2 text-sm leading-6 font-semibold ">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor"
@@ -153,6 +138,7 @@ on(['refreshComponent' => function () {
                         @endforeach
                         </tbody>
                     </table>
+                        {{ $contacts->links() }}
                 </div>
             </div>
         </div>

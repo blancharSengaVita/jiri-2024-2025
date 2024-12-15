@@ -4,13 +4,15 @@ use App\Models\Project;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
-use function Livewire\Volt\{layout, mount, rules, state, on};
+use function Livewire\Volt\{layout, mount, rules, state, on, with, usesPagination};
+
+usesPagination();
 
 layout('layouts.app');
 
 state([
     'drawer',
-    'projects',
+//    'projects',
     'user',
     'deleteModal',
 ]);
@@ -18,15 +20,17 @@ state([
 mount(function () {
     $this->drawer = false;
     $this->user = Auth::user()->load('projects');
-    $this->projects = $this->user->projects()->orderBy('name')->get();
+//    $this->projects = $this->user->projects()->orderBy('name')->get();
 });
 
-$openCreateDrawer = function () {
-    $this->dispatch('openDrawer')->to('partials.projects-drawers');
+with(fn() => ['projects' => $this->user->projects()->orderBy('name')->paginate(10)]);
+
+$create = function () {
+    $this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
 };
 
-$edit = function(Project $project) {
-    $this->dispatch('editThis',  project: $project)->to('partials.projects-drawers');
+$edit = function (Project $project) {
+    $this->dispatch('openEditProjectDrawer', project: $project)->to('partials.projects-drawers');
 };
 
 $openDeleteModal = function (Project $project) {
@@ -53,7 +57,7 @@ on(['refreshComponent' => function () {
                 <p class="mt-2 text-sm text-gray-700">La liste de tout vos projets</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <button wire:click="openCreateDrawer" type="button"
+                <button wire:click="create" type="button"
                         class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                     Ajouter un projet
                 </button>
@@ -80,10 +84,10 @@ on(['refreshComponent' => function () {
                             Supprimer
                         </button>
                     </div>
-
                 </li>
             @endforeach
         </ul>
+        {{ $projects->links() }}
     </div>
     <livewire:partials.projects-drawers/>
     <livewire:partials.delete-modal/>

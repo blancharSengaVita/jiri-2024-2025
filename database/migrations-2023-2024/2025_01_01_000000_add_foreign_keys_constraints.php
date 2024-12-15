@@ -38,7 +38,6 @@ return new class extends Migration
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
         });
     }
-
     /**
      * Reverse the migrations.
      */

@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Livewire\Actions\Logout;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,12 @@ mount(function () {
 
 $openMobileMenu = function () {
     $this->mobileMenu = !$this->mobileMenu;
+};
+
+$logout = function (Logout $logout) {
+    $logout();
+
+    $this->redirect(\route('login'), navigate: true);
 };
 ?>
 
@@ -235,13 +242,32 @@ $openMobileMenu = function () {
                         </ul>
                     </li>
                     <li class="-mx-6 mt-auto">
+                        <div class="relative">
+                            <div class="absolute
+                            ms-4
+                            mb-4
+                        bottom-full
+                        rounded-md z-50 mt-2 w-48
+                        bg-white shadow-lg ring-1 ring-black/5 focus:outline-none
+                        " role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1">
+                                <div class="py-1" role="none">
+                                    <!-- Active: "bg-gray-100 text-gray-900 outline-none", Not Active: "text-gray-700" -->
+                                    <button wire:click="logout" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">Se déconnecter</button>
+                                </div>
+                            </div>
+                        </div>
                         <a href="#"
+{{--                           x-data="open = false"--}}
+{{--                           x-cloak--}}
+{{--                           x-show="open"--}}
+{{--                           @click="open = true"--}}
+{{--                           @click.outside="open = false"--}}
                            class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800">
                             <img class="h-8 w-8 rounded-full bg-gray-800"
-                                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                 src="https://ui-avatars.com/api/?length=1&name={{$user->name}}"
                                  alt="">
                             <span class="sr-only">Your profile</span>
-                            <span aria-hidden="true">Tom Cook</span>
+                            <span aria-hidden="true">{{$user->name}}</span>
                         </a>
                     </li>
                 </ul>

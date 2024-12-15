@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('duties', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->foreignId('jiri_id')->constrained()->onDelete('cascade');
             $table->integer('weighting')->nullable();
             $table->timestamps();
         });
@@ -23,6 +25,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('duties', static function (Blueprint $table) {
+            $table->dropForeign(['project_id']);
+            $table->dropForeign(['jiri_id']);
+        });
         Schema::dropIfExists('duties');
     }
 };
+

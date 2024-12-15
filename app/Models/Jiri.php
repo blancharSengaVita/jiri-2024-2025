@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,12 +13,29 @@ class Jiri extends Model
 {
     /** @use HasFactory<\Database\Factories\JiriFactory> */
     use HasFactory;
+
+
     protected $fillable = [
         'name',
         'user_id',
         'starting_at',
         'duration',
     ];
+
+//    protected function casts(): array
+//    {
+//        return [
+//            'starting_at' => 'datetime:'d F Y',
+//        ];
+//    }
+
+    protected function startingAt(): Attribute
+    {
+        return Attribute::make(
+//            get: fn ($value) => Carbon::parse($value)->translatedFormat('d F Y'),
+//            set: fn (string $value) => strtolower($value),
+        );
+    }
 
     public function user(): BelongsTo
     {
@@ -41,6 +59,12 @@ class Jiri extends Model
     {
         return $this
             ->hasMany(Attendance::class);
+    }
+
+    public function duties(): HasMany
+    {
+        return $this
+            ->hasMany(Duties::class);
     }
 
     public function contacts(): BelongsToMany

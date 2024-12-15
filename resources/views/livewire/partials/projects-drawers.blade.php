@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Project;
+use App\Models\Duties;
+use App\Models\Jiri;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
@@ -9,118 +11,128 @@ use function Livewire\Volt\{layout, mount, rules, state, on};
 layout('layouts.app');
 
 state([
-    'drawer',
-    'projects',
-    'project',
-    'user',
-    'name',
-    'description',
-    'linkInputs',
-    'tasks',
-    'id',
-    'deleteModal',
+	'drawer',
+	'projects',
+	'project',
+	'user',
+	'name',
+	'description',
+	'linkInputs',
+	'tasks',
+	'id',
+	'deleteModal',
+    'jiri' => null,
 ]);
 
 rules(fn() => [
-    'name' => 'required',
-    'description' => 'required',
-    'linkInputs.*' => 'required',
-    'tasks.*' => 'required',
+	'name' => 'required',
+	'description' => 'required',
+	'linkInputs.*' => 'required',
+	'tasks.*' => 'required',
 ])->messages([
-    'name.required' => 'Le champ est obligatoire.',
-    'description.required' => 'Le champ est obligatoire.',
-    'linkInputs.*.required' => 'Le champ est obligatoire.',
-    'tasks.*.required' => 'Le champ est obligatoire.',
+	'name.required' => 'Le champ est obligatoire.',
+	'description.required' => 'Le champ est obligatoire.',
+	'linkInputs.*.required' => 'Le champ est obligatoire.',
+	'tasks.*.required' => 'Le champ est obligatoire.',
 ])->attributes([
 ]);
 
 mount(function () {
-    $this->drawer = false;
-    $this->user = Auth::user();
-    $this->id = 0;
-    $this->name = '';
-    $this->description = '';
-    $this->linkInputs = new Collection();
-    $this->tasks = new Collection();
+	$this->drawer = false;
+	$this->user = Auth::user();
+	$this->id = 0;
+	$this->name = '';
+	$this->description = '';
+	$this->linkInputs = new Collection();
+	$this->tasks = new Collection();
 });
 
 $addLinkInput = function () {
-    $this->linkInputs->push('');
+	$this->linkInputs->push('');
 };
 
 $removeLinkInput = function ($key) {
-    $this->linkInputs->pull($key);
+	$this->linkInputs->pull($key);
 };
 
 $addTasks = function () {
-    $this->tasks->push('');
+	$this->tasks->push('');
 };
 
 $removeTasks = function ($key) {
-    $this->tasks->pull($key);
+	$this->tasks->pull($key);
 };
 
-$openCreateDrawer = function () {
-    $this->resetValidation();
-    $this->drawer = true;
-    $this->name = '';
-    $this->description = '';
-    $this->linkInputs = new Collection();
-    $this->tasks = new Collection();
-    $this->drawer = true;
+$create = function () {
+	$this->resetValidation();
+	$this->drawer = true;
+	$this->name = '';
+	$this->description = '';
+	$this->linkInputs = new Collection();
+	$this->tasks = new Collection();
+	$this->drawer = true;
 };
 
 $closeCreateDrawer = function () {
-    $this->drawer = false;
+	$this->drawer = false;
 };
 
 $edit = function (Project $project) {
-    $this->id = $project->id;
-    $this->name = $project->name;
-    $this->description = $project->description;
-    $this->linkInputs = collect(json_decode($project->links));
-    $this->tasks = collect(json_decode($project->tasks));
-    $this->drawer = true;
+	$this->id = $project->id;
+	$this->name = $project->name;
+	$this->description = $project->description;
+	$this->linkInputs = collect(json_decode($project->links));
+	$this->tasks = collect(json_decode($project->tasks));
+	$this->drawer = true;
 };
 
 $save = function () {
-    try {
-        $this->validate();
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        throw $e;
+	try {
+		$this->validate();
+	} catch (\Illuminate\Validation\ValidationException $e) {
+		throw $e;
+	}
+
+	$newProject = Project::updateOrCreate([
+		'user_id' => Auth::id(),
+		'id' => $this->id,
+	],
+		[
+			'name' => $this->name,
+			'description' => $this->description,
+			'links' => json_encode($this->linkInputs),
+			'tasks' => json_encode($this->tasks),
+		]);
+
+	$this->drawer = false;
+	if ($this->id === 0) {
+		Toaster::success('Donnée ajouté avec succès');
+	}
+
+	if ($this->id !== 0) {
+		Toaster::success('Donnée modifiée avec succès');
+	}
+
+	if ($this->jiri !== null) {
+		Duties::updateOrInsert([
+			'jiri_id' => $this->jiri->id,
+			'project_id' => $newProject->id,
+		]);
     }
 
-    Project::updateOrCreate([
-        'user_id' => Auth::id(),
-        'id' => $this->id,
-    ],
-        [
-            'name' => $this->name,
-            'description' => $this->description,
-            'links' => json_encode($this->linkInputs),
-            'tasks' => json_encode($this->tasks),
-        ]);
-
-    $this->drawer = false;
-    if ($this->id === 0) {
-        Toaster::success('Donnée ajouté avec succès');
-    }
-
-    if ($this->id !== 0) {
-        Toaster::success('Donnée modifiée avec succès');
-    };
-
-    $this->dispatch('refreshComponent');
+	$this->dispatch('refreshComponent');
 };
 
 on([
-    'openDrawer' => function () {
-        $this->openCreateDrawer();
-    },
-    'editThis' => function (Project $project) {
-        $this->openCreateDrawer();
+	'openCreateProjectDrawer' => function (Project $project = null, Jiri $jiri = null) {
+		$this->create();
+        if ($jiri->id) {
+            $this->jiri = $jiri;
+        }
+	},
+	'openEditProjectDrawer' => function (Project $project) {
         $this->edit($project);
-    },
+	},
 ]);
 ?>
 
@@ -129,10 +141,12 @@ on([
     open: $wire.entangle('drawer'),
     }"
 >
-    <div x-show="open"
+    <div
+        x-cloak
+        x-show="open"
          x-trap.inert="open"
          @keydown.escape="open = false"
-{{--         :class="open ? 'relative z-10' : 'hidden'" --}}
+         :class="open ? 'relative z-10' : 'hidden'"
          class="z-50" aria-labelledby="slide-over-title" role="dialog"
          aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
@@ -177,7 +191,7 @@ on([
                                                 <span class="absolute -inset-2.5"></span>
                                                 <span class="sr-only">Fermer la modal</span>
                                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                     stroke="currentColor" aria-hidden="true" data-slot="icon">
+                                                     stroke="currentColor" data-slot="icon">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                           d="M6 18 18 6M6 6l12 12"/>
                                                 </svg>
@@ -240,6 +254,8 @@ on([
                                                          class="absolute z-50 flex items-start gap-2 bottom-full mb-4 bg-white p-4 rounded-xl border border-gray-200 text-sm shadow">
                                                         <svg
                                                             @click="tooltip = !tooltip;"
+                                                            @mouseenter="tooltip = true;"
+                                                            @mouseleave="tooltip = false;"
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             class="w-24 cursor-pointer hover:bg-gray-200 rounded"
                                                             fill="none"
@@ -260,6 +276,8 @@ on([
                                                 </div>
                                                 <div class="flex">
                                                     <svg @click="tooltip = true;"
+                                                         @mouseenter="tooltip = true;"
+                                                         @mouseleave="tooltip = false;"
                                                          xmlns="http://www.w3.org/2000/svg"
                                                          fill="none"
                                                          viewBox="0 0 24 24"
@@ -346,6 +364,8 @@ on([
                                                 </div>
                                                 <div class="flex">
                                                     <svg @click="tooltip = !tooltip;"
+                                                         @mouseenter="tooltip = true;"
+                                                         @mouseleave="tooltip = false;"
                                                          xmlns="http://www.w3.org/2000/svg"
                                                          fill="none"
                                                          viewBox="0 0 24 24"
