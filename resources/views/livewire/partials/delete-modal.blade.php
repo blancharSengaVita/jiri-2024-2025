@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Masmerise\Toaster\Toaster;
 use Intervention\Image\Laravel\Facades\Image;
+use \Illuminate\Support\Facades\Route;
 use function Livewire\Volt\{layout, mount, rules, state, usesFileUploads, on};
 
 usesFileUploads();
@@ -23,7 +24,7 @@ mount(function () {
 });
 
 $delete = function () {
-    if ($this->model instanceof Jiri) {
+    if ($this->model instanceof Jiri && Route::currentRouteName() === 'pages.jiris.edit') {
         $this->redirectIntended(default: route('pages.jiris', absolute: false), navigate: true);
     }
     Toaster::success('Donnée Supprimé avec succès');

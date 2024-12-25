@@ -14,25 +14,26 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full font-sans antialiased">
-<div class="min-h-screen bg-gray-100">
-    <x-toaster-hub />
+<div class="min-h-screen bg-gray-100 h-full">
+{{--    <x-toaster-hub/>--}}
     {{--            <livewire:layout.navigation />--}}
-        <!-- Page Heading -->
-        @if (isset($header))
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endif
-
-        <!-- Page Content -->
-        <livewire:sidebar/>
-        <main class="py-10 lg:pl-72">
-            <div class="px-4 sm:px-6 lg:px-8">
-                {{$slot}}
+    <!-- Page Heading -->
+    @if (isset($header))
+    @dump($header)
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                {{ $header }}
             </div>
-        </main>
+        </header>
+    @endif
+
+    <!-- Page Content -->
+    <livewire:sidebar/>
+    <main class="py-10 lg:pl-72 h-auto">
+        <div class="px-4 sm:px-6 lg:px-8 h-auto">
+            {{$slot}}
+        </div>
+    </main>
 </div>
 </body>
 </html>

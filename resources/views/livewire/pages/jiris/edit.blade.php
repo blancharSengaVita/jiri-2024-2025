@@ -71,6 +71,8 @@ $save = function () {
             'starting_at' => $this->date,
         ]);
 
+     $this->jiri->starting_at = Carbon::parse($this->date)->format('Y-m-d');
+    $this->jiri->name = $this->name;
 
     if ($this->id === 0) {
         Toaster::success('Jiri ajouté avec succès');
@@ -79,7 +81,6 @@ $save = function () {
     if ($this->id !== 0) {
         Toaster::success('Jiri modifiée avec succès');
     }
-
     $this->mount($this->jiri);
 };
 
@@ -102,7 +103,7 @@ $start = function () {
 
         $sum += (int)$duty->weighting;
 
-        if ($duty['weighting'] === null | $duty['weighting'] === '') {
+        if ($duty['weighting'] === null || $duty['weighting'] === '') {
             Toaster::error('Un projet ou plusieurs n\'ont pas de pondération.');
 			return;
 //            throw new StartJiriException('Un projet n\'a pas de pondération.');
@@ -157,7 +158,7 @@ on(['refreshComponent' => function () {
                        name="name"
                        id="name"
                        autocomplete="given-name"
-                       wire:model.live="name"
+                       wire:model="name"
                        class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6">
                 @if ($messages = $errors->get('name'))
                     <div class="text-sm text-red-600 space-y-1 mt-2">

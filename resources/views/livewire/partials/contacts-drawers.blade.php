@@ -164,7 +164,9 @@ on([
 ]);
 ?>
 
-<div class="py-10"
+<div x-cloak
+     x-show="open"
+     class="py-10"
      x-data="{
     open: $wire.entangle('drawer'),
     }"
