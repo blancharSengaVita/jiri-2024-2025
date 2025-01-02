@@ -82,6 +82,10 @@ $edit = function (Contact $contact) {
 	$this->drawer = true;
 };
 
+$clearInput = function () {
+    $this->photo = null;
+};
+
 $saveContact = function () {
 	try {
 		$this->validate();
@@ -90,8 +94,6 @@ $saveContact = function () {
         throw $e;
 	}
 
-
-//    dd($path);
 
 	if ($this->photo) {
 		$this->path = $this->photo->store('contacts/' . $this->user->id . '/originals');
@@ -296,8 +298,15 @@ on([
                                             <fieldset class="">
                                                 <label
                                                     for="photo"
-                                                    class="block text-sm font-medium leading-6 text-gray-900">
+                                                    class="text-sm font-medium leading-6 text-gray-900 flex justify-between">
                                                     Photo de profil
+                                                    <button id="addLinks"
+                                                            type="button"
+                                                            value="L'intitulé des liens qui seront attribués aux projets"
+                                                            wire:click="clearInput"
+                                                            class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    >Vider le champ
+                                                    </button>
                                                 </label>
                                                 @if($id !== 0)
                                                     <div class="mt-2 h-24 w-24 flex-shrink-0">
