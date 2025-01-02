@@ -50,17 +50,6 @@ $weightingIsEmpty = computed(function () {
     return false;
 });
 
-//$weightingIsNotSaved = computed(function () {
-//    foreach ($this->duties as $duty) {
-//        $currentDuty = Duties::where('jiri_id', $this->jiri->id)
-//            ->where('project_id', $duty['project_id'])->first();
-//        if (){
-//			//si la ponderation dans l'input n'est pas le meme que la pondération dans la vue, dire qu'il faut enregistrer les changemnt
-//        }
-//        $currentDuty->save();
-//    }
-//});
-
 $filteredProjects = computed(function () {
     return auth()
         ->user()
@@ -71,6 +60,7 @@ $filteredProjects = computed(function () {
         })
         ->get();
 });
+
 
 $projects = computed(function () {
     return Project::whereHas('duties', function ($query) {
@@ -140,7 +130,6 @@ on(['refreshComponent' => function () {
                      isFocused: false,
                      blurTimeout: null,
                      }"
-
                 >
                     <input
                         autocomplete="off"
@@ -171,10 +160,15 @@ on(['refreshComponent' => function () {
 
                           Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
                         -->
-                        @if(!count($this->filteredProjects))
+                        @if(!count($this->filteredProjects) && $this->search !== '' )
                             <li class="inputSearch relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
                                 id="option-0" role="option" tabindex="-1">
                                 <p>Aucun résultat</p>
+                            </li>
+                        @elseif(!count($this->filteredProjects) && $this->search === '')
+                            <li class="inputSearch relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
+                                id="option-0" role="option" tabindex="-1">
+                                <p>Tous les projects ont déjà été ajouté</p>
                             </li>
                         @endif
                         @foreach($this->filteredProjects as $project)
