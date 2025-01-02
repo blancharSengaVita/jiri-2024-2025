@@ -24,7 +24,6 @@ $create = function () {
 $delete = function (Contact $contact) {
     $this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('partials.delete-modal');
 };
-
 ?>
 <tr>
     <td class="px-5 py-5 pl-4 pr-3 text-sm">

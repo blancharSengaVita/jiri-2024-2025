@@ -24,27 +24,27 @@ mount(function () {
 });
 
 $createJiriDrawer = function () {
-    $this->dispatch('openCreateJiriDrawer')->to('partials.jiris-drawers');
     $this->mount();
+    $this->dispatch('openCreateJiriDrawer')->to('partials.jiris-drawers');
 };
 
 $createProjectDrawer = function () {
-    $this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
     $this->mount();
+    $this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
 };
 
 $createContactDrawer = function () {
+    $this->mount();
     $this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
 };
 
 $openDeleteModal = function (Jiri $jiri) {
-    $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
     $this->mount();
+    $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 };
 
 on(['refreshComponent' => function () {
-//	dd('salut');
-//    $this->mount();
+    $this->mount();
 }]);
 ?>
 
