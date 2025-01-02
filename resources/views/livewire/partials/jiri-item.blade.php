@@ -49,10 +49,6 @@ mount(function (Jiri $jiri){
     }
 });
 
-//on(['refreshComponent' => function () {
-//    $this->mount($this->jiri);
-//}]);
-
 $delete = function (Jiri $jiri) {
     $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 	$this->mount($this->jiri);

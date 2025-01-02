@@ -12,7 +12,6 @@ layout('layouts.app');
 
 state([
 	'drawer',
-	'projects',
 	'project',
 	'user',
 	'name',
@@ -65,7 +64,6 @@ $removeTasks = function ($key) {
 
 $create = function () {
 	$this->resetValidation();
-	$this->drawer = true;
 	$this->name = '';
 	$this->description = '';
 	$this->linkInputs = new Collection();
@@ -124,7 +122,7 @@ $save = function () {
 };
 
 on([
-	'openCreateProjectDrawer' => function (Project $project = null, Jiri $jiri = null) {
+	'openCreateProjectDrawer' => function (Jiri $jiri = null) {
 		$this->create();
         if ($jiri->id) {
             $this->jiri = $jiri;

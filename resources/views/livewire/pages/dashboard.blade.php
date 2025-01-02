@@ -17,7 +17,7 @@ state([
 layout('layouts.app');
 
 mount(function () {
-    $this->user = Auth::user()->load('jiris');
+    $this->user = Auth::user();
     $this->jiris = $this->user->jiris()->orderBy('updated_at', 'desc')->limit(3)->get();
     $this->projects = $this->user->projects()->orderBy('updated_at', 'desc')->limit(3)->get();
     $this->contacts = $this->user->contacts()->orderBy('updated_at', 'desc')->limit(3)->get();
@@ -29,8 +29,8 @@ $createJiriDrawer = function () {
 };
 
 $createProjectDrawer = function () {
-    $this->mount();
     $this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
+    $this->mount();
 };
 
 $createContactDrawer = function () {
@@ -69,7 +69,7 @@ on(['refreshComponent' => function () {
             @if(count($jiris))
                 <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
                     @foreach($jiris as $jiri)
-                        <livewire:partials.jiri-item :$jiri :key="$jiri->id"/>
+                        <livewire:partials.jiri-item :$jiri :key="'jiri'.$jiri->id"/>
                     @endforeach
                 </ul>
             @else
@@ -114,7 +114,8 @@ on(['refreshComponent' => function () {
             @if(count($projects))
                 <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
                     @foreach($projects as $project)
-                        <livewire:partials.project-item :$project :key="$project->id"/>
+{{--                    {{ $projects }}--}}
+                        <livewire:partials.project-item :$project :key="'project'.$project->id"/>
                     @endforeach
                 </ul>
             @else
@@ -161,7 +162,7 @@ on(['refreshComponent' => function () {
                     <table class="min-w-full divide-y divide-gray-300 border mt-4 shadow-sm ring-1 ring-gray-900/5">
                         <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($contacts as $contact)
-                            <livewire:partials.contact-item :$contact :key="$contact->id"/>
+                            <livewire:partials.contact-item :$contact :key="'contact'.$contact->id"/>
                         @endforeach
                         </tbody>
                     </table>

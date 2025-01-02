@@ -35,8 +35,8 @@ rules(fn() => [
 
 mount(function () {
     $this->drawer = false;
-    $this->user = Auth::user()->load('jiris');
-    $this->jiris = $this->user->jiris()->orderBy('name')->get();
+    $this->user = Auth::user();
+//    $this->jiris = $this->user->jiris()->orderBy('name')->get();
 });
 
 $closeCreateDrawer = function () {

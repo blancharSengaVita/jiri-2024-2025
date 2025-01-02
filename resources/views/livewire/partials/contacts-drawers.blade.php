@@ -13,154 +13,155 @@ usesFileUploads();
 layout('layouts.app');
 
 state([
-    'drawer',
-    'contacts',
-    'contact',
-    'jiri' => null,
-    'role',
-    'user',
-    'name',
-    'email',
-    'phone',
-    'photo',
-    'path',
-    'id',
-    'deleteModal',
-    'modelName',
-    'stringNew',
+	'drawer',
+	'contacts',
+	'contact',
+	'jiri' => null,
+	'role',
+	'user',
+	'name',
+	'email',
+	'phone',
+	'photo',
+	'path',
+	'id',
+	'deleteModal',
+	'modelName',
+	'stringNew',
 ]);
 
 rules(fn() => [
-    'name' => 'required',
-    'email' => 'required|email',
-    'phone' => [
-        'regex:/^[\d\s()+-]+$/',
-    ],
-    'photo' => 'sometimes|nullable|image|max:5120',
+	'name' => 'required',
+	'email' => 'required|email',
+	'phone' => [
+		'regex:/^[\d\s()+-]+$/',
+	],
+	'photo' => 'sometimes|nullable|image|max:5120|mimes:jpg,jpeg,png',
 ])->messages([
-    'name.required' => 'Le champ est obligatoire.',
-    'email.required' => 'Le champ est obligatoire.',
-    'email.email' => 'Le champ doit être un email.',
-    'phone.numeric' => 'Le champ doit être composé de chiffre',
-    'phone.regex' => 'Le champ doit contenir uniquement des chiffres, des espaces, des parenthèses, et le signe "+".',
-    'photo.image' => 'Le fichier doit être une photo en JPEG, JPG ou PNG',
-    'photo.max' => 'La taille de l\'image doit être inferieur à 5mo',
+	'name.required' => 'Le champ est obligatoire.',
+	'email.required' => 'Le champ est obligatoire.',
+	'email.email' => 'Le champ doit être un email.',
+	'phone.numeric' => 'Le champ doit être composé de chiffre',
+	'phone.regex' => 'Le champ doit contenir uniquement des chiffres, des espaces, des parenthèses, et le signe "+".',
+	'photo.image' => 'Le fichier doit être une photo en JPEG, JPG ou PNG',
+	'photo.mimes' => 'Le fichier doit être une photo en JPEG, JPG ou PNG',
+	'photo.max' => 'La taille de l\'image doit être inferieur à 5mo',
 ])->attributes([
 ]);
 
 mount(function () {
-    $this->drawer = false;
-    $this->user = Auth::user();
-    $this->modelName = 'contact';
+	$this->drawer = false;
+	$this->user = Auth::user();
+	$this->modelName = 'contact';
 
 
-    $this->id = 0;
-    $this->name = '';
-    $this->email = '';
-    $this->phone = '';
-    $this->photo = null;
+	$this->id = 0;
+	$this->name = '';
+	$this->email = '';
+	$this->phone = '';
+	$this->photo = null;
 });
 
-
 $create = function () {
-    $this->resetValidation();
-    $this->id = 0;
-    $this->name = '';
-    $this->email = '';
-    $this->phone = '';
-    $this->photo = null;
-    $this->drawer = true;
+	$this->resetValidation();
+	$this->id = 0;
+	$this->name = '';
+	$this->email = '';
+	$this->phone = '';
+	$this->photo = null;
+	$this->drawer = true;
 };
 
 $edit = function (Contact $contact) {
-    $this->id = $contact->id;
-    $this->name = $contact->name;
-    $this->email = $contact->email;
-    $this->phone = $contact->phone;
-    $this->path = $contact->photo;
-    $this->photo = null;
-    $this->drawer = true;
+	$this->id = $contact->id;
+	$this->name = $contact->name;
+	$this->email = $contact->email;
+	$this->phone = $contact->phone;
+	$this->path = $contact->photo;
+	$this->photo = null;
+	$this->drawer = true;
 };
 
 $saveContact = function () {
-    try {
-        $this->validate();
-    } catch (\Illuminate\Validation\ValidationException $e) {
+	try {
+		$this->validate();
+	} catch (\Illuminate\Validation\ValidationException $e) {
+        Toaster::error('salut');
         throw $e;
-    }
+	}
 
 
 //    dd($path);
 
-    if ($this->photo) {
-        $this->path = $this->photo->store('contacts/' . $this->user->id . '/originals');
-        $myExplodedArray = explode('.', $this->path);
-        $extension = $myExplodedArray[array_key_last($myExplodedArray)];
-        $myExplodedArray = explode('/', $myExplodedArray[0]);
-        $hashname = $myExplodedArray[array_key_last($myExplodedArray)];
+	if ($this->photo) {
+		$this->path = $this->photo->store('contacts/' . $this->user->id . '/originals');
+		$myExplodedArray = explode('.', $this->path);
+		$extension = $myExplodedArray[array_key_last($myExplodedArray)];
+		$myExplodedArray = explode('/', $myExplodedArray[0]);
+		$hashname = $myExplodedArray[array_key_last($myExplodedArray)];
 
-        $sizes = Config::get('photos.sizes');
-        foreach ($sizes as $name => $size) {
-            if (!is_int($size)) {
-                continue;
-            }
-            $i = Image::read($this->photo);
-            $i->cover($size, $size);
-            $i->save(storage_path('app/public/contacts/' . $this->user->id . '/' . $hashname . '_' . $name . '.' . $extension));
-        }
-    }
+		$sizes = Config::get('photos.sizes');
+		foreach ($sizes as $name => $size) {
+			if (!is_int($size)) {
+				continue;
+			}
+			$i = Image::read($this->photo);
+			$i->cover($size, $size);
+			$i->save(storage_path('app/public/contacts/' . $this->user->id . '/' . $hashname . '_' . $name . '.' . $extension));
+		}
+	}
 
-    $newContact = Contact::updateOrCreate([
-        'user_id' => Auth::id(),
-        'id' => $this->id,
-    ],
-        [
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'photo' => $this->path,
-        ]);
+	$newContact = Contact::updateOrCreate([
+		'user_id' => Auth::id(),
+		'id' => $this->id,
+	],
+		[
+			'name' => $this->name,
+			'email' => $this->email,
+			'phone' => $this->phone,
+			'photo' => $this->path,
+		]);
 
 
-    $this->drawer = false;
-    if ($this->id === 0) {
-        Toaster::success('Donnée ajouté avec succès');
-    }
+	$this->drawer = false;
+	if ($this->id === 0) {
+		Toaster::success('Donnée ajouté avec succès');
+	}
 
-    if ($this->id !== 0) {
-        Toaster::success('Donnée modifiée avec succès');
-    };
+	if ($this->id !== 0) {
+		Toaster::success('Donnée modifiée avec succès');
+	};
 
-    if ($this->jiri) {
-        Attendance::updateOrInsert([
-            'jiri_id' => $this->jiri->id,
-            'contact_id' => $newContact->id,
-        ],
-            [
-                'role' => $this->role,
-            ]);
+	if ($this->jiri) {
+		Attendance::updateOrInsert([
+			'jiri_id' => $this->jiri->id,
+			'contact_id' => $newContact->id,
+		],
+			[
+				'role' => $this->role,
+			]);
 
-    }
+	}
 
-    $this->dispatch('refreshComponent');
+	$this->dispatch('refreshComponent');
 };
 
-$close = function (){
+$close = function () {
 	$this->drawer = false;
 };
 
 on([
-    'openCreateContactDrawer' => function (string $role = null, Jiri|null $jiri = null) {
-        $this->create();
-		if ($jiri->id){
-            $this->jiri = $jiri;
-            $this->role = $role;
-            $this->modelName = $this->role === null ? 'contact' : ($this->role === 'student' ? 'étudiant' : 'évaluateur');
-        }
-    },
-    'openEditContactDrawer' => function (Contact $contact) {
-        $this->edit($contact);
-    },
+	'openCreateContactDrawer' => function (string $role = null, Jiri|null $jiri = null) {
+		$this->create();
+		if ($jiri->id) {
+			$this->jiri = $jiri;
+			$this->role = $role;
+			$this->modelName = $this->role === null ? 'contact' : ($this->role === 'student' ? 'étudiant' : 'évaluateur');
+		}
+	},
+	'openEditContactDrawer' => function (Contact $contact) {
+		$this->edit($contact);
+	},
 ]);
 ?>
 
@@ -234,7 +235,8 @@ on([
                                         </div>
                                     </div>
                                     <div class="mt-1">
-                                        <p class="text-sm text-gray-400">Ajouter des informations pour votre {{$modelName}}</p>
+                                        <p class="text-sm text-gray-400">Ajouter des informations pour
+                                            votre {{$modelName}}</p>
                                     </div>
                                 </div>
                                 <div class="flex flex-1 flex-col justify-between">

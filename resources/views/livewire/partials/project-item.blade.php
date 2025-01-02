@@ -2,9 +2,6 @@
 
 use App\Models\Project;
 use function Livewire\Volt\{state, mount, on};
-use Masmerise\Toaster\Toaster;
-use Carbon\Carbon;
-use App\Models\Duties;
 
 state([
 	'project',
