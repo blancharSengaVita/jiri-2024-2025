@@ -159,5 +159,5 @@ on(['refreshComponent' => function () {
         </div>
     </div>
     <livewire:pages.contacts-drawers/>
-    <livewire:pages.delete-modal @refreshComponent="$refresh"/>
+    <livewire:pages.delete-modal/>
 </div>

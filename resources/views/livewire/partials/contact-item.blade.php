@@ -23,14 +23,8 @@ $create = function () {
 
 $delete = function (Contact $contact) {
     $this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('partials.delete-modal');
-	$this->mount($this->$contact);
 };
 
-on([
-    'refreshComponent' => function () {
-        $this->mount($this->contact);
-    }
-])
 ?>
 <tr>
     <td class="px-5 py-5 pl-4 pr-3 text-sm">
@@ -64,7 +58,7 @@ on([
             </svg>
             <span class="sr-only">Modifier {{ $contact->name }}</span>
         </button>
-        <button wire:click="openDeleteModal({{$contact}})" type="button"
+        <button wire:click="delete({{$contact}})" type="button"
                 class="text-gray-700 group rounded-md p-2 text-sm leading-6 font-semibold">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  stroke-width="1.5" stroke="currentColor"

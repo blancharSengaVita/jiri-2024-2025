@@ -43,7 +43,8 @@ $openDeleteModal = function (Jiri $jiri) {
 };
 
 on(['refreshComponent' => function () {
-    $this->mount();
+//	dd('salut');
+//    $this->mount();
 }]);
 ?>
 
