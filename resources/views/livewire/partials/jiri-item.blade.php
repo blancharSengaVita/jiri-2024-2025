@@ -3,7 +3,8 @@ use App\Models\Jiri;
 use function Livewire\Volt\{state,mount, on};
 use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
-use App\Models\Duties;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\JiriLaunched;
 
 state([
 	'jiri',
@@ -49,10 +50,28 @@ mount(function (Jiri $jiri){
     }
 });
 
+$start = function (){
+    if ($this->jiri->evaluators->isEmpty()){
+        Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
+		$this->mount($this->jiri);
+		return false;
+    }
+
+    foreach ($this->jiri->evaluators as $evaluator) {
+        Mail::to($evaluator->email)->queue(new JiriLaunched());
+    }
+    Toaster::success('Les mails ont bien été envoyés');
+    $this->mount($this->jiri);
+};
+
 $delete = function (Jiri $jiri) {
     $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 	$this->mount($this->jiri);
 };
+
+on(['refreshDashboardItems' => function () {
+    $this->mount($this->jiri);
+}]);
 ?>
 <li class="flex items-center justify-between gap-x-6 py-5 p-4"
     x-data="{tooltip: false}">
