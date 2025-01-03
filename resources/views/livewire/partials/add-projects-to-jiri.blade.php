@@ -355,3 +355,22 @@ on(['refreshComponent' => function () {
     });
 </script>
 @endscript
+
+@script
+<script>
+    const container = document.getElementById('drawerContainer');
+    scrollToBottom();
+
+    function scrollToBottom () {
+        container.scrollTop = container.scrollHeight;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        scrollToBottom(); // Scroll initial au chargement de la page
+    });
+
+    $wire.on('message-sent', () => {
+        setTimeout(() => scrollToBottom(), 1);
+    });
+</script>
+@endscript

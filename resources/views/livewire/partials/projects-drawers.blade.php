@@ -17,7 +17,9 @@ state([
 	'name',
 	'description',
 	'linkInputs',
+	'linkInputId',
 	'tasks',
+	'taskId',
 	'id',
 	'deleteModal',
     'jiri' => null,
@@ -26,28 +28,33 @@ state([
 rules(fn() => [
 	'name' => 'required',
 	'description' => 'required',
-	'linkInputs.*' => 'required',
-	'tasks.*' => 'required',
+	'linkInputs.*' => 'sometimes',
+	'tasks.*' => 'sometimes',
 ])->messages([
 	'name.required' => 'Le champ est obligatoire.',
 	'description.required' => 'Le champ est obligatoire.',
-	'linkInputs.*.required' => 'Le champ est obligatoire.',
-	'tasks.*.required' => 'Le champ est obligatoire.',
+    'linkInputs.*.required' => 'Le champ est obligatoire.',
+    'tasks.*.required' => 'Le champ est obligatoire.',
+    'linkInputs.*.sometimes' => 'Le champ est obligatoire.',
+    'tasks.*.sometimes' => 'Le champ est obligatoire.',
 ])->attributes([
 ]);
 
 mount(function () {
-	$this->drawer = false;
+	$this->drawer = true;
 	$this->user = Auth::user();
 	$this->id = 0;
 	$this->name = '';
 	$this->description = '';
 	$this->linkInputs = new Collection();
 	$this->tasks = new Collection();
+	$this->linkInputId = 0;
 });
 
 $addLinkInput = function () {
-	$this->linkInputs->push('');
+    $this->linkInputId++;
+	$this->linkInputs->put($this->linkInputId, '');
+    $this->dispatch('scroll-to-bottom')->self();
 };
 
 $removeLinkInput = function ($key) {
@@ -55,7 +62,9 @@ $removeLinkInput = function ($key) {
 };
 
 $addTasks = function () {
-	$this->tasks->push('');
+    $this->taskId++;
+	$this->tasks->put($this->taskId,'');
+    $this->dispatch('scroll-to-bottom-2')->self();
 };
 
 $removeTasks = function ($key) {
@@ -84,12 +93,21 @@ $edit = function (Project $project) {
 	$this->drawer = true;
 };
 
+$deleteNullValueFromCollection = function (Collection $myCollection){
+    return $myCollection->filter(function ($value) {
+        return !empty($value); // Vérifie si la valeur n'est pas vide
+    });
+};
+
 $save = function () {
 	try {
 		$this->validate();
 	} catch (\Illuminate\Validation\ValidationException $e) {
 		throw $e;
 	}
+
+    $this->linkInputs = $this->deleteNullValueFromCollection($this->linkInputs);
+    $this->tasks = $this->deleteNullValueFromCollection($this->tasks);
 
 	$newProject = Project::updateOrCreate([
 		'user_id' => Auth::id(),
@@ -178,7 +196,7 @@ on([
                             enctype="multipart/form-data"
                             class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl"
                         >
-                            <div class="h-0 flex-1 overflow-y-scroll overflow-hidden max-h-full">
+                            <div class="h-0 flex-1 overflow-y-scroll overflow-hidden max-h-full" id="drawerContainer">
                                 <div class="bg-gray-900 px-4 py-6 sm:px-6">
                                     <div class="flex items-center justify-between">
                                         <h2 class="text-base font-semibold leading-6 text-white" id="slide-over-title">
@@ -241,6 +259,7 @@ on([
 
 
                                             <fieldset
+                                                id="linkContainer"
                                                 class="relative"
                                                 x-data="{
                                             tooltip: false
@@ -301,12 +320,12 @@ on([
                                                 <div>
                                                     @foreach($linkInputs as $key => $input)
                                                         <div class="flex items-center mt-4">
-                                                            <input wire:model.live="linkInputs.{{$key}}" type="text"
+                                                            <input wire:model.live="linkInputs.{{$key}}" :key="{{$key}}" type="text"
                                                                    name="addLinks"
-                                                                   id="addLinks"
+                                                                   id="addLinks-{{$key}}"
                                                                    placeholder="Lien du projet"
                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                                   autocomplete="on">
+                                                                   autocomplete>
                                                             <svg width="12"
                                                                  height="12"
                                                                  wire:click="removeLinkInput({{$key}})"
@@ -330,7 +349,9 @@ on([
                                                     @endforeach
                                                 </div>
                                             </fieldset>
-                                            <fieldset class="relative"
+                                            <fieldset
+                                                id="taskContainer"
+                                                class="relative"
                                                       x-data="{
                                             tooltip: false
                                             }">
@@ -399,9 +420,9 @@ on([
                                                 <div>
                                                     @foreach($tasks as $key => $task)
                                                         <div class="flex items-center mt-4">
-                                                            <input wire:model.live="tasks.{{$key}}" type="text"
+                                                            <input wire:model="tasks.{{$key}}" type="text"
                                                                    name="addTask"
-                                                                   id="addTask"
+                                                                   id="addTask.{{$key}}"
                                                                    placeholder="Intégration (HTML, CSS, JS)"
                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                                    autocomplete="on">
@@ -451,3 +472,31 @@ on([
         </div>
     </div>
 </div>
+@script
+<script>
+    const linkContainer = document.getElementById('linkContainer');
+    const taskContainer = document.getElementById('taskContainer');
+    const container = document.getElementById('drawerContainer');
+    scrollToBottom(container);
+
+    function scrollToBottom (element ,number) {
+        console.log(container);
+        console.log(taskContainer);
+        console.log(linkContainer);
+        container.scrollTop += element.clientHeight;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        scrollToBottom(linkContainer, linkContainer.scrollHeight); // Scroll initial au chargement de la page
+        scrollToBottom(taskContainer,taskContainer.scrollHeight); // Scroll initial au chargement de la page
+    });
+
+    $wire.on('scroll-to-bottom', () => {
+        setTimeout(() => scrollToBottom(linkContainer,linkContainer.scrollHeight), 1);
+    });
+
+    $wire.on('scroll-to-bottom-2', () => {
+        setTimeout(() => scrollToBottom(taskContainer, taskContainer.scrollHeight), 1);
+    });
+</script>
+@endscript
