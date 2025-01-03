@@ -155,6 +155,8 @@ on(['refreshComponent' => function () {
                 <label for="name"
                        class="mt-2 block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Nom</label>
                 <input type="text"
+                       x-init="$el.focus()"
+                       autofocus
                        name="name"
                        id="name"
                        autocomplete="given-name"

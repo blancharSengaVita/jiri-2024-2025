@@ -80,6 +80,7 @@ $edit = function (Contact $contact) {
 	$this->path = $contact->photo;
 	$this->photo = null;
 	$this->drawer = true;
+    $this->dispatch('focus')->self();
 };
 
 $clearInput = function () {
@@ -248,8 +249,8 @@ on([
                                                 <label for="name"
                                                        class="block text-sm font-medium leading-6 text-gray-900">Nom<span
                                                         class="text-red-500">*</span></label>
-                                                <div class="mt-2">
-                                                    <input wire:model="name" type="text" name="name" id="name"
+                                                <div x-data="{}" class="mt-2">
+                                                    <input x-init="$el.focus()" wire:model="name" type="text" name="name" id="name" autofocus
                                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                                            autocomplete="on">
                                                     <p class="text-xs text-gray-400 mt-2">Ce champ est obligatoire*</p>
