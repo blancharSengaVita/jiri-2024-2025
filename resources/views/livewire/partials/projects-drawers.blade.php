@@ -307,10 +307,10 @@ on([
                                                     </svg>
                                                     <label for="addLinks"
                                                            class="text-sm font-medium leading-6 text-gray-900 flex gap-x-0.5 items-center">
-                                                        Liens requis
+                                                        Liens vers les ressources
                                                         <button id="addLinks"
                                                                 type="button"
-                                                                value="L'intitulé des liens qui seront attribués aux projets"
+                                                                value="L'intitulé des liens des ressources qui seront attribués aux projets"
                                                                 wire:click="addLinkInput"
                                                                 class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                                         >Ajouter
