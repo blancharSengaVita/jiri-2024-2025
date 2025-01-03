@@ -5,6 +5,7 @@ use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\JiriLaunched;
+use App\Notifications\JiriLaunchedNotification;
 
 state([
 	'jiri',
@@ -57,9 +58,15 @@ $start = function (){
 		return false;
     }
 
+//    foreach ($this->jiri->evaluators as $evaluator) {
+//        Mail::to($evaluator->email)->queue(new JiriLaunched());
+//    }
+
     foreach ($this->jiri->evaluators as $evaluator) {
-        Mail::to($evaluator->email)->queue(new JiriLaunched());
+        $evaluator->notify(new JiriLaunchedNotification($this->jiri, $evaluator));
     }
+
+
     Toaster::success('Les mails ont bien été envoyés');
     $this->mount($this->jiri);
 };
