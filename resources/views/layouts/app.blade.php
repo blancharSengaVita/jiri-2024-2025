@@ -15,8 +15,8 @@
 </head>
 <body class="h-full font-sans antialiased">
 <div class="min-h-screen bg-gray-100 h-full">
-{{--    <x-toaster-hub/>--}}
-    {{--            <livewire:layout.navigation />--}}
+    <x-toaster-hub/>
+{{--                <livewire:layout.navigation />--}}
     <!-- Page Heading -->
     @if (isset($header))
     @dump($header)
