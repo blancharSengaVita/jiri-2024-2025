@@ -44,6 +44,7 @@ $openDeleteModal = function (Jiri $jiri) {
 };
 
 on(['refreshComponent' => function () {
+	$this->dispatch('refreshDashboardItems');
     $this->mount();
 }]);
 ?>

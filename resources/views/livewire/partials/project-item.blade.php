@@ -22,6 +22,10 @@ $create = function () {
 $delete = function (Project $project) {
 	$this->dispatch('openDeleteModal', modelName: 'App\Models\Project',  modelId: $project->id,)->to('partials.delete-modal');
 };
+
+on(['refreshDashboardItems' => function () {
+    $this->mount($this->project);
+}]);
 ?>
 <li class="flex items-center justify-between gap-x-6 py-5 p-4">
     <div class="min-w-0">

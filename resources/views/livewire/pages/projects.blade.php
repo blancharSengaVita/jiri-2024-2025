@@ -53,7 +53,7 @@ on(['refreshComponent' => function () {
     <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des projets</h1>
     <div>
         <div class="sm:flex sm:items-center">
-            <div class="sm:flex-auto"
+            <div class="sm:flex-auto">
                 <p class="mt-2 text-sm text-gray-700">La liste de tout vos projets</p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">

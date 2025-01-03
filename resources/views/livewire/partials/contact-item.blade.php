@@ -1,6 +1,7 @@
 <?php
+
 use App\Models\Contact;
-use function Livewire\Volt\{state,mount,on};
+use function Livewire\Volt\{state, mount, on};
 use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
 use App\Models\Duties;
@@ -9,21 +10,25 @@ state([
 	'contact',
 ]);
 
-mount(function (Contact $contact){
+mount(function (Contact $contact) {
 	$this->contact = $contact;
 });
 
 $edit = function (Contact $contact) {
-    $this->dispatch('openEditContactDrawer', contact: $contact)->to('partials.contacts-drawers');
+	$this->dispatch('openEditContactDrawer', contact: $contact)->to('partials.contacts-drawers');
 };
 
 $create = function () {
-    $this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
+	$this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
 };
 
 $delete = function (Contact $contact) {
-    $this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('partials.delete-modal');
+	$this->dispatch('openDeleteModal', modelId: $contact->id, modelName: 'App\Models\Contact')->to('partials.delete-modal');
 };
+
+on(['refreshDashboardItems' => function () {
+	$this->mount($this->contact);
+}]);
 ?>
 <tr>
     <td class="px-5 py-5 pl-4 pr-3 text-sm">
