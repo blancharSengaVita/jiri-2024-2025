@@ -1,9 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Middleware\VerifyEvaluatorToken;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+
+Volt::route('evaluator', 'pages.evaluator')
+    ->middleware([VerifyEvaluatorToken::class])
+    ->name('pages.evaluator');
 
 Volt::route('dashboard', 'pages.dashboard')
     ->middleware(['auth', 'verified'])

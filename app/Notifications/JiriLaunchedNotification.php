@@ -17,14 +17,18 @@ class JiriLaunchedNotification extends Notification implements ShouldQueue
 
     public Jiri $jiri;
     public Contact $evaluator;
+    public string $name;
+    public string $token;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Jiri $jiri, Contact $evaluator)
+    public function __construct(Jiri $jiri, Contact $evaluator, string $name, string $token)
     {
         $this->jiri = $jiri;
         $this->evaluator = $evaluator;
+        $this->name = $name;
+        $this->token = $token;
     }
 
     /**
@@ -47,9 +51,9 @@ class JiriLaunchedNotification extends Notification implements ShouldQueue
             ->greeting('Bonjour ' . $this->evaluator->name . ',')
             ->line('Nous avons le plaisir de vous annoncer que le jiri ' . $this->jiri->name . ' est maintenant lancé.')
             ->line('Vous pouvez maintenant accéder à la plateforme et démarrer les évaluations.')
-            ->action('Accéder à la plateforme', url('/'))
+            ->action('Accéder au jiri', url('/evaluator?token='. $this->token))
             ->line(__('Cordialement,'))
-            ->salutation(__('jiri.mail.salutation', ['name' => Auth::user()->name]));
+            ->salutation(__('jiri.mail.salutation', ['name' => $this->name]));
     }
 
     /**
