@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
 use App\Models\Duties;
+use Illuminate\Support\Facades\URL;
 
 state([
     'user',
@@ -14,7 +15,9 @@ state([
 layout('layouts.app');
 
 mount(function () {
-
+    if(request()->has('token')) {
+        $this->redirect(URL::current(), navigate: true);
+    }
 });
 ?>
 
