@@ -5,13 +5,18 @@ use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\JiriLaunched;
+use App\Notifications\JiriLaunchedNotification;
+use App\Jobs\SendJiriLaunchedEmails;
+use Illuminate\Support\Facades\Auth;
 
 state([
 	'jiri',
+    'user',
 ]);
 
 mount(function (Jiri $jiri){
 	$this->jiri = $jiri;
+	$this->user = Auth::user();
 
     $jiri->starting_at = Carbon::parse($jiri->starting_at)->translatedFormat('j F Y');
 
@@ -57,9 +62,7 @@ $start = function (){
 		return false;
     }
 
-    foreach ($this->jiri->evaluators as $evaluator) {
-        Mail::to($evaluator->email)->queue(new JiriLaunched());
-    }
+    SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
     Toaster::success('Les mails ont bien été envoyés');
     $this->mount($this->jiri);
 };
