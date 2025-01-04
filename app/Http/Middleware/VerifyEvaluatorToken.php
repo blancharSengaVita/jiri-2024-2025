@@ -17,17 +17,21 @@ class VerifyEvaluatorToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (session('attendance')) {
+            return $next($request);
+        }
+
         if (Auth::check()) {
             return redirect(route('pages.dashboard', absolute: false));
         }
 
         if (!$request->token) {
-            abort('404');
+            abort('403');
         }
 
         $attendance = Attendance::where('token', $request->token)->first();
         if (!$attendance) {
-            abort('403');
+            abort('404');
         }
 
         session(['attendance' => $attendance]);
