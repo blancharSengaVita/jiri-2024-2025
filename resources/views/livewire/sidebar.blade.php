@@ -6,42 +6,46 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use  \Illuminate\Support\Facades\Route;
 use function Livewire\Volt\{
-    state,
-    mount,
+	state,
+	mount,
 };
 
 state([
-    'mobileMenu',
-    'profilePictureSource',
-    'route' => request()->url(),
-    'user',
-    'title',
+	'mobileMenu',
+	'profilePictureSource',
+	'route' => request()->url(),
+	'user',
+	'title',
 ]);
 
 mount(function () {
-    $this->mobileMenu = false;
-    $this->user = Auth::user();
-//    dd($this->route);
-//    if ($this->user->profil_picture) {
-//        $this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
-//    } else {
-//        $this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
-//    }
+	$this->mobileMenu = false;
+	session('attendance')->load('contact');
+	session('attendance')->load('jiri');
+	$this->attendance = session('attendance');
+		$this->attendance->contact()->first()->name ?? '';
+	$this->user = Auth::user() ?: $this->attendance->contact()->first();
+
+    if ($this->user->profil_picture) {
+        $this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
+    } else {
+        $this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
+    }
 });
 
 $openMobileMenu = function () {
-    $this->mobileMenu = !$this->mobileMenu;
+	$this->mobileMenu = !$this->mobileMenu;
 };
 
 $logout = function (Logout $logout) {
-    $logout();
+	$logout();
 
-    $this->redirect(\route('login'), navigate: true);
+	$this->redirect(\route('login'), navigate: true);
 };
 ?>
 
 <nav
-    x-data="{
+        x-data="{
     open: $wire.entangle('mobileMenu'),
     }"
 >
@@ -216,9 +220,9 @@ $logout = function (Logout $logout) {
                             {{--                                    </li>--}}
                             <li>
                                 <a
-                                    wire:navigate
-                                    href="{{route('pages.projects')}}"
-                                    class=" {{ Route::is('pages.projects') ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md">
+                                        wire:navigate
+                                        href="{{route('pages.projects')}}"
+                                        class=" {{ Route::is('pages.projects') ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md">
                                     <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                          stroke="currentColor" aria-hidden="true" data-slot="icon">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -252,16 +256,18 @@ $logout = function (Logout $logout) {
                         " role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1">
                                 <div class="py-1" role="none">
                                     <!-- Active: "bg-gray-100 text-gray-900 outline-none", Not Active: "text-gray-700" -->
-                                    <button wire:click="logout" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">Se déconnecter</button>
+                                    <button wire:click="logout" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">
+                                        Se déconnecter
+                                    </button>
                                 </div>
                             </div>
                         </div>
                         <a href="#"
-{{--                           x-data="open = false"--}}
-{{--                           x-cloak--}}
-{{--                           x-show="open"--}}
-{{--                           @click="open = true"--}}
-{{--                           @click.outside="open = false"--}}
+                           {{--                           x-data="open = false"--}}
+                           {{--                           x-cloak--}}
+                           {{--                           x-show="open"--}}
+                           {{--                           @click="open = true"--}}
+                           {{--                           @click.outside="open = false"--}}
                            class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800">
                             <img class="h-8 w-8 rounded-full bg-gray-800"
                                  src="https://ui-avatars.com/api/?length=1&name={{$user->name}}"
