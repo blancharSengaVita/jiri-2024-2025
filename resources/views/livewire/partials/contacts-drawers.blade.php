@@ -80,19 +80,19 @@ $edit = function (Contact $contact) {
 	$this->path = $contact->photo;
 	$this->photo = null;
 	$this->drawer = true;
-    $this->dispatch('focus')->self();
+	$this->dispatch('focus')->self();
 };
 
 $clearInput = function () {
-    $this->photo = null;
+	$this->photo = null;
 };
 
 $saveContact = function () {
 	try {
 		$this->validate();
 	} catch (\Illuminate\Validation\ValidationException $e) {
-        Toaster::error('salut');
-        throw $e;
+		Toaster::error('salut');
+		throw $e;
 	}
 
 
@@ -147,6 +147,7 @@ $saveContact = function () {
 	}
 
 	$this->dispatch('refreshComponent');
+	$this->dispatch('refreshDashboardItems');
 };
 
 $close = function () {

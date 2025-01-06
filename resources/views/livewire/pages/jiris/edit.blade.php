@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use App\Exceptions\StartJiriException;
+use App\Jobs\SendJiriLaunchedEmails;
 use function Livewire\Volt\{layout, mount, rules, state, computed, usesFileUploads, on};
 
 usesFileUploads();
@@ -71,7 +72,7 @@ $save = function () {
             'starting_at' => $this->date,
         ]);
 
-     $this->jiri->starting_at = Carbon::parse($this->date)->format('Y-m-d');
+    $this->jiri->starting_at = Carbon::parse($this->date)->format('Y-m-d');
     $this->jiri->name = $this->name;
 
     if ($this->id === 0) {
@@ -105,7 +106,7 @@ $start = function () {
 
         if ($duty['weighting'] === null || $duty['weighting'] === '') {
             Toaster::error('Un projet ou plusieurs n\'ont pas de pondération.');
-			return;
+            return;
 //            throw new StartJiriException('Un projet n\'a pas de pondération.');
         }
     }
@@ -115,6 +116,63 @@ $start = function () {
         return;
 //        throw new StartJiriException('La somme des pondérations des projets doit être égale à 100.');
     }
+
+    if ($this->jiri->evaluators->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
+        return false;
+    }
+
+    if ($this->jiri->students->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'élèves dans le jiri');
+        return false;
+    }
+
+    if ($this->jiri->projects->isEmpty()) {
+        Toaster::error('Il n\'y a pas de projects dans le jiri');
+        return false;
+    }
+
+    SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
+    $this->jiri->status = Jiri::STATUS_IN_PROGRESS;
+    $this->jiri->save();
+    session(['jiriLaunched' => 'Le jiri a été lancé avec succès!']);
+    session(['currentJiri' => $this->jiri]);
+    $this->redirect(route('pages.dashboard', absolute: false), navigate: true);
+
+    session('currentJiri')->status = Jiri::STATUS_IN_PROGRESS;
+};
+
+$startJiri = function () {
+    session('currentJiri')->status = Jiri::STATUS_IN_PROGRESS;
+    session('currentJiri')->save();
+    $this->dispatch('refreshSidebar');
+    Toaster::success('Le jiri a été relancé');
+};
+
+$stopJiri = function () {
+    session('currentJiri')->status = Jiri::STATUS_FINISHED;
+    session(['currentJiri'=> Jiri::find(session('currentJiri')->id)]);
+    foreach (session('currentJiri')->evaluators as $evaluator){
+        $attendance = Attendance::where('role', 'evaluator')
+            ->where('jiri_id', $this->jiri->id)
+            ->where('contact_id',$evaluator->id)
+            ->first();
+        $attendance->token = null;
+		$attendance->save();
+    }
+    session('currentJiri')->save();
+
+    session()->forget('currentJiri');
+    $this->dispatch('refreshSidebar');
+    $this->dispatch('refreshJiriItem');
+    Toaster::success('Le jiri a été stoppé');
+};
+
+$pauseJiri = function () {
+    session('currentJiri')->status = Jiri::STATUS_ON_PAUSE;
+    session('currentJiri')->save();
+    $this->dispatch('refreshSidebar');
+    Toaster::success('Le jiri a été mis en pause');
 };
 
 on(['refreshComponent' => function () {
@@ -128,22 +186,66 @@ on(['refreshComponent' => function () {
     deleteModal: $wire.entangle('deleteModal'),
     }"
 >
-    <h1 class="text-3xl mt-2 font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}}</h1>
+    <div class="flex gap-x-2 items-center mb-2 mt-2">
+        @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
+                cours)</h1>
+            <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+        @elseif(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
+                cours)</h1>
+            <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
+        @else
+            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}}</h1>
+        @endif
+    </div>
     <div>
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">
                 <p class="mt-2 text-sm text-gray-700">Toutes les informations sur {{$jiri->name}}</p>
             </div>
-            <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex">
-                <button type="button"
-                        wire:click="start"
-                        class="rounded-md bg-white px-3 py-2 mr-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                    Lancer le jiri
-                </button>
-                <button wire:click="openDeleteModal({{$jiri}})" type="button"
-                        class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                    Supprimer le jiri
-                </button>
+            <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-x-2">
+                @if(session('currentJiri') && session('currentJiri')->id === $jiri->id)
+                    @if(session('currentJiri')->canBePaused())
+                        <button id=""
+                                type="button"
+                                value="Mettre en pause le jiri"
+                                wire:click="pauseJiri"
+                                class="flex items-center justify-center rounded  px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
+                        >Mettre en pause le jiri
+                        </button>
+                    @endif
+                    @if(session('currentJiri')->canBeRelaunched())
+                        <button id=""
+                                type="button"
+                                value="Relancer le jiri"
+                                wire:click="startJiri"
+                                class="flex items-center justify-center rounded  px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
+                        >Relancer le jiri
+                        </button>
+                    @endif
+                    @if(session('currentJiri')->canBeStopped())
+                        <button id=""
+                                type="button"
+                                value="Mettre fin au jiri"
+                                wire:click="stopJiri"
+                                class="flex items-center justify-center rounded bg-red-600 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >Mettre fin au jiri
+                        </button>
+                    @endif
+                @endif
+                {{--                @if(session('currentJiri'))--}}
+                    @if(!session('currentJiri') || session('currentJiri')->id !== $jiri->id)
+                        <button type="button"
+                                wire:click="start"
+                                class="rounded-md bg-white px-3 py-2 mr-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            Lancer le jiri
+                        </button>
+                        <button wire:click="openDeleteModal({{ $jiri }})" type="button"
+                                class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            Supprimer le jiri
+                        </button>
+                    @endif
             </div>
         </div>
 

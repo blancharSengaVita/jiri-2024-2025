@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Models\Jiri;
 use App\Livewire\Actions\Logout;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -8,6 +8,7 @@ use  \Illuminate\Support\Facades\Route;
 use function Livewire\Volt\{
 	state,
 	mount,
+	on,
 };
 
 state([
@@ -61,6 +62,10 @@ $logout = function (Logout $logout) {
 
 	$this->redirect(\route('login'), navigate: true);
 };
+
+on(['refreshSidebar' => function () {
+	$this->mount();
+}]);
 ?>
 
 <nav
@@ -162,8 +167,8 @@ $logout = function (Logout $logout) {
                                         </li>
                                         <li>
                                         <li>
-                                            <a href="{{route('pages.jiris')}}"
-                                               class=" {{ Route::is('pages.jiris.index') || Route::is('pages.jiris.edit')  ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md">
+                                                <a href="{{route('pages.jiris')}}"
+                                               class=" {{ Route::is('pages.jiris') || Route::is('pages.jiris.edit')  ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md">
                                                 <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24"
                                                      stroke-width="1.5" stroke="currentColor" aria-hidden="true"
                                                      data-slot="icon">
@@ -243,7 +248,7 @@ $logout = function (Logout $logout) {
                                     <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
                                     <a wire:navigate
                                        href="{{route('pages.dashboard')}}"
-                                       class=" {{ Route::is('pages.dashboard') ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md"
+                                       class=" {{ Route::is('pages.dashboard') ? 'bg-gray-800 p-2 text-sm font-semibold leading-6 text-white' : 'p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white' }} group flex gap-x-3 rounded-md items-center"
                                     >
                                         <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" aria-hidden="true"
@@ -252,6 +257,12 @@ $logout = function (Logout $logout) {
                                                   d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
                                         </svg>
                                         Dashboard
+                                        @if(session('currentJiri') && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+                                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        @endif
+                                        @if(session('currentJiri') && session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+                                            <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                        @endif
                                     </a>
                                 </li>
                                 <li>

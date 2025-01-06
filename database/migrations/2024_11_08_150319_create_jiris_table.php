@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('starting_at')->nullable();
-            $table->enum('status', ['en cours', 'non commencé', 'terminé', 'en pause'])->default('non commencé');
+            $table->enum('status', ['not_started', 'in_progress', 'finished', 'on_pause'])->default('not_started');
             $table->timestamps();
         });
     }

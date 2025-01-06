@@ -85,6 +85,7 @@ $save = function () {
         Toaster::success('Projet modifiée avec succès');
     };
     $this->dispatch('refreshComponent');
+    $this->dispatch('refreshDashboardItems');
 };
 
 on([

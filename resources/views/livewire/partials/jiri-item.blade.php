@@ -1,6 +1,9 @@
 <?php
+
+use App\Models\Attendance;
+use App\Models\Duties;
 use App\Models\Jiri;
-use function Livewire\Volt\{state,mount, on};
+use function Livewire\Volt\{state, mount, on};
 use Masmerise\Toaster\Toaster;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -10,80 +13,132 @@ use App\Jobs\SendJiriLaunchedEmails;
 use Illuminate\Support\Facades\Auth;
 
 state([
-	'jiri',
+    'jiri',
     'user',
 ]);
 
-mount(function (Jiri $jiri){
-	$this->jiri = $jiri;
-	$this->user = Auth::user();
+mount(function (Jiri $jiri) {
+    Carbon::setLocale('fr');
+    $this->user = Auth::user();
 
-    $jiri->starting_at = Carbon::parse($jiri->starting_at)->translatedFormat('j F Y');
+    $this->jiri = $jiri;
+    $this->jiri->starting_at = Carbon::parse($this->jiri->starting_at)->translatedFormat('j F Y');
 
-    $jiri->errors = collect([]);
+    $this->jiri->errors = collect([]);
 
-    if ($jiri->evaluators->isEmpty()){
-        $jiri->errors->push('Le jiri n\'a pas d\'évaluateurs');
+    if ($this->jiri->evaluators->isEmpty()) {
+        $this->jiri->errors->push('Le jiri n\'a pas d\'évaluateurs');
     }
 
-    if ($jiri->students->isEmpty()){
-        $jiri->errors->push('Le jiri n\'a pas d\'élève');
+    if ($this->jiri->students->isEmpty()) {
+        $this->jiri->errors->push('Le jiri n\'a pas d\'élève');
     }
 
-    if($jiri->duties->isEmpty()){
-        $jiri->errors->push('Le jiri n\'a pas de projet');
+    if ($this->jiri->duties->isEmpty()) {
+        $this->jiri->errors->push('Le jiri n\'a pas de projet');
     }
 
-    if($jiri->duties){
+    if ($this->jiri->duties) {
         $sum = 0;
-        foreach ($jiri->duties as $duty) {
+        foreach ($this->jiri->duties as $duty) {
             $sum += $duty->weighting;
         }
     } else {
-        $jiri->errors->push('Le jiri n\'a pas de projet');
+        $this->jiri->errors->push('Le jiri n\'a pas de projet');
     }
 
     if ($sum !== 100) {
-        $jiri->errors->push('La somme des pondérations des projets doit être égale à 100.');
+        $this->jiri->errors->push('La somme des pondérations des projets doit être égale à 100.');
     }
 
-    foreach ($jiri->duties as $duty) {
+    foreach ($this->jiri->duties as $duty) {
         if ($duty['weighting'] === null || $duty['weighting'] === '') {
-            $jiri->errors->push('Un projet n\'a pas de pondération.');
+            $this->jiri->errors->push('Un projet n\'a pas de pondération.');
             break;
         }
     }
+    Carbon::setLocale('fr');
 });
 
-$start = function (){
-    if ($this->jiri->evaluators->isEmpty()){
-        Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
-		$this->mount($this->jiri);
-		return false;
+$start = function () {
+    $this->mount($this->jiri);
+    $duties = Duties::where('jiri_id', $this->jiri->id)->get();
+    $sum = 0;
+    foreach ($duties as $duty) {
+
+        $sum += (int)$duty->weighting;
+
+        if ($duty['weighting'] === null || $duty['weighting'] === '') {
+            Toaster::error('Un projet ou plusieurs n\'ont pas de pondération.');
+            return;
+//            throw new StartJiriException('Un projet n\'a pas de pondération.');
+        }
     }
 
+    if ($sum !== 100) {
+        Toaster::error('La somme des pondérations des projets doit être égale à 100.');
+        return;
+//        throw new StartJiriException('La somme des pondérations des projets doit être égale à 100.');
+    }
+
+    if ($this->jiri->evaluators->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
+        return false;
+    }
+
+    if ($this->jiri->students->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'élèves dans le jiri');
+        return false;
+    }
+
+    if ($this->jiri->projects->isEmpty()) {
+        Toaster::error('Il n\'y a pas de projects dans le jiri');
+        return false;
+    }
+
+    $this->jiri = Jiri::find($this->jiri->id);
     SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
-	$this->jiri->status = 'started';
-    $this->mount($this->jiri);
+    $this->jiri->status = Jiri::STATUS_IN_PROGRESS;
+    $this->jiri->save();
     session(['jiriLaunched' => 'Le jiri a été lancé avec succès!']);
+    session(['currentJiri' => $this->jiri]);
+    Toaster::success('Le jiri a été lancé');
     $this->redirect(route('pages.dashboard', absolute: false), navigate: true);
+    $this->mount($this->jiri);
 };
 
-$stop = function(){
-    $this->jiri->status = 'stopped';
-	foreach ($this->jiri->evaluators as $evaluator){
-		$evaluator->attendance()->first()->token = null;
+$stopJiri = function () {
+    $this->jiri = Jiri::find(session('currentJiri')->id);
+    $this->jiri->status = Jiri::STATUS_FINISHED;
+    $this->jiri->save();
+
+    foreach ($this->jiri->evaluators as $evaluator){
+        $attendance = Attendance::where('role', 'evaluator')
+            ->where('jiri_id', $this->jiri->id)
+            ->where('contact_id',$evaluator->id)
+            ->first();
+        $attendance->token = null;
+        $attendance->save();
     }
+    session()->forget('currentJiri');
+    $this->dispatch('refreshSidebar');
+    $this->dispatch('refreshJiriItem');
+    $this->dispatch('refreshComponent');
+    Toaster::success('Le jiri a été stoppé');
+    $this->mount($this->jiri);
 };
 
 $delete = function (Jiri $jiri) {
     $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
-	$this->mount($this->jiri);
+    $this->mount($this->jiri);
 };
 
-on(['refreshDashboardItems' => function () {
-    $this->mount($this->jiri);
-}]);
+on([
+    'refreshDashboardItems' => function () {
+        $this->mount($this->jiri);
+    }, 'refreshJiriItem' => function () {
+        $this->mount($this->jiri);
+    }]);
 ?>
 <li class="flex items-center justify-between gap-x-6 py-5 p-4"
     x-data="{tooltip: false}">
@@ -129,18 +184,41 @@ on(['refreshDashboardItems' => function () {
             </svg>
         @endif
         <div class="flex-col items-start gap-x-3">
-            <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}}</p>
+
+            <div class="flex gap-x-2 items-center mb-2 mt-2">
+                @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+                    <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}} (Jiri en cours)</p>
+                    <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                @endif
+                @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+                    <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}} (Jiri en pause)</p>
+                    <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
+                @else
+                    <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}}</p>
+                @endif
+            </div>
+
             <p class="text-sm/6 text-gray-500">{{ $jiri->starting_at }}</p>
         </div>
     </div>
 
     <div class="flex flex-none items-center gap-x-4">
-        <button type="button"
-                wire:click="start({{$jiri}})"
-                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
-            Lancer le jiri<span class="sr-only">{{$jiri->name}}</span>
-        </button>
-        <a href="{{route('pages.jiris.edit', $jiri)}}"
+        @if(session('currentJiri') && $jiri->id === session('currentJiri')->id && session('currentJiri')->canBeStopped())
+            <button id=""
+                    type="button"
+                    value="Mettre fin au jiri"
+                    wire:click="stopJiri"
+                    class="rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:block">
+                Stopper le jiri
+            </button>
+        @else
+            <button type="button"
+                    wire:click="start({{$jiri}})"
+                    class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                Lancer le jiri<span class="sr-only">{{$jiri->name}}</span>
+            </button>
+        @endif
+        <a wire:navigate href="{{route('pages.jiris.edit', $jiri)}}"
            class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
             Voir le Jiri<span class="sr-only">{{$jiri->name}}</span>
         </a>

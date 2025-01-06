@@ -22,19 +22,36 @@ class Jiri extends Model
         'duration',
     ];
 
-//    protected function casts(): array
-//    {
-//        return [
-//            'starting_at' => 'datetime:'d F Y',
-//        ];
-//    }
+    protected $hidden = ['errors'];
 
-    protected function startingAt(): Attribute
+    public const STATUS_NOT_STARTED = 'not_started';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_FINISHED = 'finished';
+    public const STATUS_ON_PAUSE = 'on_pause';
+
+    public static function statusLabels(): array
     {
-        return Attribute::make(
-//            get: fn ($value) => Carbon::parse($value)->translatedFormat('d F Y'),
-//            set: fn (string $value) => strtolower($value),
-        );
+        return [
+            self::STATUS_NOT_STARTED => 'Non commencé',
+            self::STATUS_IN_PROGRESS => 'En cours',
+            self::STATUS_FINISHED => 'Terminé',
+            self::STATUS_ON_PAUSE => 'En pause',
+        ];
+    }
+
+    public function canBePaused(): bool
+    {
+        return $this->status === self::STATUS_IN_PROGRESS;
+    }
+
+    public function canBeStopped(): bool
+    {
+        return in_array($this->status, [self::STATUS_ON_PAUSE, self::STATUS_IN_PROGRESS]);
+    }
+
+    public function canBeRelaunched(): bool
+    {
+        return $this->status === self::STATUS_ON_PAUSE;
     }
 
     public function user(): BelongsTo

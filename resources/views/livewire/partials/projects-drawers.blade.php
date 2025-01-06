@@ -137,6 +137,7 @@ $save = function () {
     }
 
 	$this->dispatch('refreshComponent');
+    $this->dispatch('refreshDashboardItems');
 };
 
 on([

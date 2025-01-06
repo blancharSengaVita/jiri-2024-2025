@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $blanchar = User::factory()
-            ->has(Contact::factory()->count(10))
+            ->has(Contact::factory()->count(100))
             ->has(Project::factory()->count(4))
             ->has(Jiri::factory()->count(2))
                 ->create([
