@@ -63,8 +63,17 @@ $start = function (){
     }
 
     SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
-    Toaster::success('Les mails ont bien été envoyés');
+	$this->jiri->status = 'started';
     $this->mount($this->jiri);
+    session(['jiriLaunched' => 'Le jiri a été lancé avec succès!']);
+    $this->redirect(route('pages.dashboard', absolute: false), navigate: true);
+};
+
+$stop = function(){
+    $this->jiri->status = 'stopped';
+	foreach ($this->jiri->evaluators as $evaluator){
+		$evaluator->attendance()->first()->token = null;
+    }
 };
 
 $delete = function (Jiri $jiri) {
@@ -112,7 +121,7 @@ on(['refreshDashboardItems' => function () {
             <svg @click="tooltip = !tooltip;"
                  @click.outside="tooltip = false;" @mouseenter="tooltip = true;"
                  @mouseleave="tooltip = false;"
-                 class="text-red-500 sm:size-6 cursor-pointer" viewBox="0 0 16 16"
+                 class="text-red-500 size-6 cursor-pointer" viewBox="0 0 16 16"
                  fill="currentColor"
                  aria-hidden="true"
                  data-slot="icon">
@@ -128,16 +137,16 @@ on(['refreshDashboardItems' => function () {
     <div class="flex flex-none items-center gap-x-4">
         <button type="button"
                 wire:click="start({{$jiri}})"
-                class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
             Lancer le jiri<span class="sr-only">{{$jiri->name}}</span>
         </button>
         <a href="{{route('pages.jiris.edit', $jiri)}}"
-           class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+           class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
             Voir le Jiri<span class="sr-only">{{$jiri->name}}</span>
         </a>
         <button wire:click="delete({{$jiri}})"
                 type="button"
-                class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                class="hidden rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:block">
             Supprimer
         </button>
     </div>

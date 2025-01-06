@@ -6,58 +6,60 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use  \Illuminate\Support\Facades\Route;
 use function Livewire\Volt\{
-    state,
-    mount,
+	state,
+	mount,
 };
 
 state([
-    'mobileMenu',
-    'profilePictureSource',
-    'route' => request()->url(),
-    'user',
-    'title',
-    'disconnectButton',
-    'headerDisconnectButton',
+	'mobileMenu',
+	'profilePictureSource',
+	'route' => request()->url(),
+	'user',
+	'title',
+	'disconnectButton',
+	'headerDisconnectButton',
 ]);
 
 mount(function () {
-    $this->mobileMenu = false;
-    $this->disconnectButton = false;
-    $this->headerDisconnectButton = false;
-    session('attendance')->load('contact');
-    session('attendance')->load('jiri');
-    $this->attendance = session('attendance');
-        $this->attendance->contact()->first()->name ?? '';
-    $this->user = Auth::user() ?: $this->attendance->contact()->first();
+	$this->mobileMenu = false;
+	$this->disconnectButton = false;
+	$this->headerDisconnectButton = false;
+	if (session('attendance')) {
+		session('attendance')->load('contact');
+		session('attendance')->load('jiri');
+		$this->attendance = session('attendance');
+			$this->attendance->contact()->first()->name ?? '';
+	}
+	$this->user = Auth::user() ?: $this->attendance->contact()->first();
 
-    if ($this->user->profil_picture) {
-        $this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
-    } else {
-        $this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
-    }
+	if ($this->user->profil_picture) {
+		$this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
+	} else {
+		$this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
+	}
 });
 
 $showDisconnectButton = function () {
-    $this->disconnectButton = !$this->disconnectButton;
+	$this->disconnectButton = !$this->disconnectButton;
 };
 
 $showHeaderDisconnectButton = function () {
-    $this->headerDisconnectButton = !$this->headerDisconnectButton;
+	$this->headerDisconnectButton = !$this->headerDisconnectButton;
 };
 
 $destroySession = function () {
-    session()->forget('attendance');
-    $this->redirect(\route('login'), navigate: true);
+	session()->forget('attendance');
+	$this->redirect(\route('login'), navigate: true);
 };
 
 $openMobileMenu = function () {
-    $this->mobileMenu = !$this->mobileMenu;
+	$this->mobileMenu = !$this->mobileMenu;
 };
 
 $logout = function (Logout $logout) {
-    $logout();
+	$logout();
 
-    $this->redirect(\route('login'), navigate: true);
+	$this->redirect(\route('login'), navigate: true);
 };
 ?>
 
