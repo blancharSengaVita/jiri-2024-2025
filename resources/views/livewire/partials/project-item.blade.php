@@ -36,7 +36,7 @@ on(['refreshDashboardItems' => function () {
     <div class="flex flex-none items-center gap-x-4">
         <button href="#"
                 wire:click="edit({{$project}})"
-                class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">
+                class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 block">
             Voir
             le projet<span class="sr-only">, </span>
         </button>

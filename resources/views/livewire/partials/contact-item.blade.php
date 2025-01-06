@@ -31,7 +31,7 @@ on(['refreshDashboardItems' => function () {
 }]);
 ?>
 <tr>
-    <td class="px-5 py-5 pl-4 pr-3 text-sm">
+    <td class="hidden md:table-cell px-5 py-5 pl-4 pr-3 text-sm">
         <div class="">
             <div class="h-11 w-11 flex-shrink-0">
                 <img class="h-11 w-11 rounded-full"
@@ -40,15 +40,15 @@ on(['refreshDashboardItems' => function () {
             </div>
         </div>
     </td>
-    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+    <td class=" whitespace-nowrap px-3 py-5 text-sm text-gray-500">
         <div>
             <div class="font-medium text-gray-900">{{ $contact->name }}</div>
         </div>
     </td>
-    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+    <td class="hidden md:table-cell whitespace-nowrap px-3 py-5 text-sm text-gray-500">
         <div class="font-medium text-gray-900">{{ $contact->email }}</div>
     </td>
-    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+    <td class="hidden md:table-cell whitespace-nowrap px-3 py-5 text-sm text-gray-500">
         <div class="font-medium text-gray-900">{{ $contact->phone ?: 'Pas de numéro' }}</div>
     </td>
     <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-sm font-medium">

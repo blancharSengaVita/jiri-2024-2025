@@ -6,52 +6,68 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use  \Illuminate\Support\Facades\Route;
 use function Livewire\Volt\{
-    state,
-    mount,
+	state,
+	mount,
 };
 
 state([
-    'mobileMenu',
-    'profilePictureSource',
-    'route' => request()->url(),
-    'user',
-    'title',
+	'mobileMenu',
+	'profilePictureSource',
+	'route' => request()->url(),
+	'user',
+	'title',
+	'disconnectButton',
+	'headerDisconnectButton',
 ]);
 
 mount(function () {
-    $this->mobileMenu = false;
-    session('attendance')->load('contact');
-    session('attendance')->load('jiri');
-    $this->attendance = session('attendance');
-        $this->attendance->contact()->first()->name ?? '';
-    $this->user = Auth::user() ?: $this->attendance->contact()->first();
+	$this->mobileMenu = false;
+	$this->disconnectButton = false;
+	$this->headerDisconnectButton = false;
+	if (session('attendance')) {
+		session('attendance')->load('contact');
+		session('attendance')->load('jiri');
+		$this->attendance = session('attendance');
+			$this->attendance->contact()->first()->name ?? '';
+	}
+	$this->user = Auth::user() ?: $this->attendance->contact()->first();
 
-    if ($this->user->profil_picture) {
-        $this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
-    } else {
-        $this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
-    }
+	if ($this->user->profil_picture) {
+		$this->profilePictureSource = '/storage/images/1024/' . $this->user->profil_picture;
+	} else {
+		$this->profilePictureSource = 'https://ui-avatars.com/api/?length=1&name=' . $this->user->game_name;
+	}
 });
 
-$destroySession = function(){
-    session()->forget('attendance');
-    $this->redirect(\route('login'), navigate: true);
+$showDisconnectButton = function () {
+	$this->disconnectButton = !$this->disconnectButton;
+};
+
+$showHeaderDisconnectButton = function () {
+	$this->headerDisconnectButton = !$this->headerDisconnectButton;
+};
+
+$destroySession = function () {
+	session()->forget('attendance');
+	$this->redirect(\route('login'), navigate: true);
 };
 
 $openMobileMenu = function () {
-    $this->mobileMenu = !$this->mobileMenu;
+	$this->mobileMenu = !$this->mobileMenu;
 };
 
 $logout = function (Logout $logout) {
-    $logout();
+	$logout();
 
-    $this->redirect(\route('login'), navigate: true);
+	$this->redirect(\route('login'), navigate: true);
 };
 ?>
 
 <nav
     x-data="{
     open: $wire.entangle('mobileMenu'),
+    disconnectButton: $wire.entangle('disconnectButton'),
+    headerDisconnectButton: $wire.entangle('headerDisconnectButton'),
     }"
 >
     <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
@@ -289,7 +305,7 @@ $logout = function (Logout $logout) {
                         rounded-md z-50 mt-2 w-48
                         bg-white shadow-lg ring-1 ring-black/5 focus:outline-none
                         " role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1">
-                                <div class="py-1" role="none">
+                                <div class="py-1" role="none" x-cloak x-show="disconnectButton">
                                     <!-- Active: "bg-gray-100 text-gray-900 outline-none", Not Active: "text-gray-700" -->
                                     @guest()
                                         <button wire:click="destroySession" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">
@@ -305,11 +321,7 @@ $logout = function (Logout $logout) {
                             </div>
                         </div>
                         <a href="#"
-                           {{--                           x-data="open = false"--}}
-                           {{--                           x-cloak--}}
-                           {{--                           x-show="open"--}}
-                           {{--                           @click="open = true"--}}
-                           {{--                           @click.outside="open = false"--}}
+                           wire:click="showDisconnectButton"
                            class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800">
                             <img class="h-8 w-8 rounded-full bg-gray-800"
                                  src="https://ui-avatars.com/api/?length=1&name={{$user->name}}"
@@ -333,11 +345,36 @@ $logout = function (Logout $logout) {
             </svg>
         </button>
         <div class="flex-1 text-sm font-semibold leading-6 text-white">Dashboard</div>
-        <a href="#">
-            <span class="sr-only">Your profile</span>
-            <img class="h-8 w-8 rounded-full bg-gray-800"
-                 src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                 alt="">
-        </a>
+
+        <div class="relative">
+            <button type="button" wire:click="showHeaderDisconnectButton">
+                <span class="sr-only">Your profile</span>
+                <img class="h-8 w-8 rounded-full bg-gray-800"
+                     src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                     alt="">
+            </button>
+            <div class="absolute
+                            ms-4
+                            mb-4
+                        right-0
+                        top-full
+                        rounded-md z-50 mt-2 w-48
+                        bg-white shadow-lg ring-1 ring-black/5 focus:outline-none
+                        " role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1">
+                <div class="py-1" role="none" x-cloak x-show="headerDisconnectButton">
+                    <!-- Active: "bg-gray-100 text-gray-900 outline-none", Not Active: "text-gray-700" -->
+                    @guest()
+                        <button wire:click="destroySession" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">
+                            Se déconnecter
+                        </button>
+                    @endguest
+                    @auth()
+                        <button wire:click="logout" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="options-menu-item-0">
+                            Se déconnecter
+                        </button>
+                    @endauth
+                </div>
+            </div>
+        </div>
     </div>
 </nav>

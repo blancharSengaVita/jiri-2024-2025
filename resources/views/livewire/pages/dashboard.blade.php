@@ -8,51 +8,83 @@ use Carbon\Carbon;
 use App\Models\Duties;
 
 state([
-    'user',
-    'jiris',
-    'contacts',
-    'projects',
+	'user',
+	'jiris',
+	'contacts',
+	'projects',
 ]);
 
 layout('layouts.app');
 
 mount(function () {
-    $this->user = Auth::user();
-    $this->jiris = $this->user->jiris()->orderBy('updated_at', 'desc')->limit(3)->get();
-    $this->projects = $this->user->projects()->orderBy('updated_at', 'desc')->limit(3)->get();
-    $this->contacts = $this->user->contacts()->orderBy('updated_at', 'desc')->limit(3)->get();
+	$this->user = Auth::user();
+	$this->jiris = $this->user->jiris()->orderBy('updated_at', 'desc')->limit(3)->get();
+	$this->projects = $this->user->projects()->orderBy('updated_at', 'desc')->limit(3)->get();
+	$this->contacts = $this->user->contacts()->orderBy('updated_at', 'desc')->limit(3)->get();
+
+	if (session('jiriLaunched')) {
+		$this->dispatch('JiriStarted')->self();
+		session()->forget('jiriLaunched');
+	}
 });
 
 $createJiriDrawer = function () {
-    $this->mount();
-    $this->dispatch('openCreateJiriDrawer')->to('partials.jiris-drawers');
+	$this->mount();
+	$this->dispatch('openCreateJiriDrawer')->to('partials.jiris-drawers');
 };
 
 $createProjectDrawer = function () {
-    $this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
-    $this->mount();
+	$this->dispatch('openCreateProjectDrawer')->to('partials.projects-drawers');
+	$this->mount();
 };
 
 $createContactDrawer = function () {
-    $this->mount();
-    $this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
+	$this->mount();
+	$this->dispatch('openCreateContactDrawer')->to('partials.contacts-drawers');
 };
 
 $openDeleteModal = function (Jiri $jiri) {
-    $this->mount();
-    $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
+	$this->mount();
+	$this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 };
 
-on(['refreshComponent' => function () {
-	$this->dispatch('refreshDashboardItems');
-    $this->mount();
-}]);
+on([
+	'refreshComponent' => function () {
+		$this->dispatch('refreshDashboardItems');
+		$this->mount();
+	}, 'JiriStarted' => function (){
+        Toaster::success('Le jiri est lancé, Les mails ont bien été envoyés');
+    }
+]);
 ?>
 
 <div class="py-10">
-    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900 mb-4">Dashboard</h1>
+    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900 mb-4">Dashboard (Jury en cours)</h1>
+    <div class="gap-4">
+        <div class="col-span-5 xl:col-span-3 mb-4">
+            <div class="flex justify-between">
+                <div class="flex gap-x-2">
+                    <h2 class="text-base/7 font-semibold text-gray-900">Les derniers jiris</h2>
+                    <button id="addLinks"
+                            type="button"
+                            value="L'intitulé des liens qui seront attribués aux projets"
+                            wire:click="createJiriDrawer"
+                            class="flex items-center justify-center rounded bg-indigo-600 ml-1 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >Ajouter
+                    </button>
+                </div>
+                <a wire:navigate href="/jiris" title="Aller vers la page du jiris" type="button" class="text-sm/6 font-semibold text-indigo-600 hover:text-indigo-500">Voir
+                    plus</a>
+            </div>
+            {{--                <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">--}}
+            {{--                    @foreach($jiris as $jiri)--}}
+            {{--                        <livewire:partials.jiri-item :$jiri :key="'jiri'.$jiri->id"/>--}}
+            {{--                    @endforeach--}}
+            {{--                </ul>--}}
+        </div>
+    </div>
     <div class="grid grid-cols-5 gap-4 gap-x-8">
-        <div class="col-span-3 mb-4">
+        <div class="col-span-5 xl:col-span-3 mb-4">
             <div class="flex justify-between">
                 <div class="flex gap-x-2">
                     <h2 class="text-base/7 font-semibold text-gray-900">Les derniers jiris</h2>
@@ -97,7 +129,7 @@ on(['refreshComponent' => function () {
                 </a>
             @endif
         </div>
-        <div class="col-span-2">
+        <div class="col-span-5 xl:col-span-2">
             <div class="flex justify-between">
                 <div class="flex gap-x-2">
                     <h2 class="text-base/7 font-semibold text-gray-900">Les projets</h2>
@@ -115,7 +147,7 @@ on(['refreshComponent' => function () {
             @if(count($projects))
                 <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
                     @foreach($projects as $project)
-{{--                    {{ $projects }}--}}
+                        {{--                    {{ $projects }}--}}
                         <livewire:partials.project-item :$project :key="'project'.$project->id"/>
                     @endforeach
                 </ul>
