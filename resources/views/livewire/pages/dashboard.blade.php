@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\Attendance;
 use App\Models\Jiri;
 use function Livewire\Volt\{layout, mount, rules, state, on};
@@ -48,42 +49,8 @@ $openDeleteModal = function (Jiri $jiri) {
 	$this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 };
 
-$startJiri = function () {
-	session('currentJiri')->status = Jiri::STATUS_IN_PROGRESS;
-	session('currentJiri')->save();
-	$this->dispatch('refreshSidebar');
-    Toaster::success('Le jiri a été relancé');
-};
-
-$stopJiri = function () {
-    $currentJiri = Jiri::find(session('currentJiri')->id);
-    $currentJiri->status = Jiri::STATUS_FINISHED;
-    $currentJiri->save();
-
-    foreach ($currentJiri->evaluators as $evaluator){
-        $attendance = Attendance::where('role', 'evaluator')
-            ->where('jiri_id', $currentJiri->id)
-            ->where('contact_id',$evaluator->id)
-            ->first();
-        $attendance->token = null;
-        $attendance->save();
-    }
-	session()->forget('currentJiri');
-	$this->dispatch('refreshSidebar');
-	$this->dispatch('refreshJiriItem');
-    Toaster::success('Le jiri a été stoppé');
-};
-
-$pauseJiri = function () {
-	session('currentJiri')->status = Jiri::STATUS_ON_PAUSE;
-	session('currentJiri')->save();
-	$this->dispatch('refreshSidebar');
-    Toaster::success('Le jiri a été mis en pause');
-};
-
 on([
 	'refreshComponent' => function () {
-//        $this->dispatch('refreshDashboardItems');
 		$this->mount();
 	}, 'JiriStarted' => function () {
 		Toaster::success('Le jiri est lancé, Les mails ont bien été envoyés');
@@ -103,8 +70,8 @@ on([
                 <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
             @endif
             @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
-                    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                        Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
+                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
                 <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
             @endif
         </div>
@@ -120,31 +87,13 @@ on([
                 </a>
             @endif
             @if(session('currentJiri')->canBePaused())
-                <button id=""
-                        type="button"
-                        value="Mettre en pause le jiri"
-                        wire:click="pauseJiri"
-                        class="flex items-center justify-center rounded  px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
-                >Mettre en pause le jiri
-                </button>
+                <livewire:partials.pauseJiri :jiri="session('currentJiri')"/>
             @endif
             @if(session('currentJiri')->canBeRelaunched())
-                <button id=""
-                        type="button"
-                        value="Relancer le jiri"
-                        wire:click="startJiri"
-                        class="flex items-center justify-center rounded  px-2 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
-                >Relancer le jiri
-                </button>
+                <livewire:partials.restartJiri :jiri="session('currentJiri')"/>
             @endif
             @if(session('currentJiri')->canBeStopped())
-                <button id=""
-                        type="button"
-                        value="Mettre fin au jiri"
-                        wire:click="stopJiri"
-                        class="flex items-center justify-center rounded bg-red-600 px-2 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >Mettre fin au jiri
-                </button>
+                <livewire:partials.stopJiri :jiri="session('currentJiri')"/>
             @endif
         </div>
     @else
