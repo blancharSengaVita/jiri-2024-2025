@@ -34,10 +34,6 @@ mount(function (Jiri $jiri) {
         $this->jiri->errors->push('Le jiri n\'a pas d\'élève');
     }
 
-    if ($this->jiri->duties->isEmpty()) {
-        $this->jiri->errors->push('Le jiri n\'a pas de projet');
-    }
-
     if ($this->jiri->duties) {
         $sum = 0;
         foreach ($this->jiri->duties as $duty) {
@@ -47,13 +43,17 @@ mount(function (Jiri $jiri) {
         $this->jiri->errors->push('Le jiri n\'a pas de projet');
     }
 
+    if ($this->jiri->duties->isEmpty()) {
+        $this->jiri->errors->push('Le jiri n\'a pas de projet');
+    }
+
     if ($sum !== 100) {
-        $this->jiri->errors->push('La somme des pondérations des projets doit être égale à 100.');
+        $this->jiri->errors->push('La somme des pondérations des projets doit être égale à 100');
     }
 
     foreach ($this->jiri->duties as $duty) {
         if ($duty['weighting'] === null || $duty['weighting'] === '') {
-            $this->jiri->errors->push('Un projet n\'a pas de pondération.');
+            $this->jiri->errors->push('Un projet ou plusieurs n\'ont pas de pondération.');
             break;
         }
     }
@@ -111,12 +111,12 @@ on([
                  fill="currentColor"
                  aria-hidden="true"
                  data-slot="icon">
-                <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0d 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
             </svg>
         @endif
         <div class="flex-col items-start gap-x-3">
 
-            <div class="flex gap-x-2 items-center mb-2 mt-2">
+            <div class="flex gap-x-2 items-center">
                 @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
                     <p class="text-sm/6 font-semibold text-gray-900">{{$jiri->name}} (Jiri en cours)</p>
                     <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>

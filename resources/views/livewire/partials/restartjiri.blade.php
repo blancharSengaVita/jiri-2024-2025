@@ -21,6 +21,7 @@ $restartJiri = function () {
     session('currentJiri')->save();
     $this->dispatch('refreshSidebar');
     $this->dispatch('refreshComponent');
+    $this->dispatch('refreshDashboardItems');
     Toaster::success('Le jiri a été relancé');
 };
 

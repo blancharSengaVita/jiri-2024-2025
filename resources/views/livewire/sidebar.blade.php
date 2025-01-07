@@ -25,10 +25,10 @@ mount(function () {
 	$this->mobileMenu = false;
 	$this->disconnectButton = false;
 	$this->headerDisconnectButton = false;
-	if (session('attendance')) {
-		session('attendance')->load('contact');
-		session('attendance')->load('jiri');
-		$this->attendance = session('attendance');
+	if (session('evaluator')) {
+		session('evaluator')->load('contact');
+		session('evaluator')->load('jiri');
+		$this->attendance = session('evaluator');
 			$this->attendance->contact()->first()->name ?? '';
 	}
 	$this->user = Auth::user() ?: $this->attendance->contact()->first();

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class VerifyEvaluatorToken
+class isEvaluator
 {
     /**
      * Handle an incoming request.
@@ -17,6 +17,7 @@ class VerifyEvaluatorToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+
         if ($request->token) {
             $evaluator = Attendance::where('token', $request->token)->first();
 
@@ -27,19 +28,7 @@ class VerifyEvaluatorToken
             };
         }
 
-        if(Auth::check()){
-            return $next($request);
-        }
-
-        if (!(session('evaluator'))) {
-            abort('403');
-        }
-
-        if (!(session('evaluator')->token)) {
-            abort('403');
-        }
-
-        if (session('evaluator')->token !== Attendance::find(session('evaluator')->id)->token || Auth::check()) {
+        if (!session('evaluator')) {
             abort('403');
         }
 

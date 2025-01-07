@@ -104,7 +104,6 @@ on(['attendanceUpdated' => function () {
                      isFocused: false,
                      blurTimeout: null,
                      }"
-
             >
                 <input
                     autocomplete="off"

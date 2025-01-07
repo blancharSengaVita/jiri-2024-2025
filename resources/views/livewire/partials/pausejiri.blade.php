@@ -21,6 +21,7 @@ $pauseJiri = function () {
 	session('currentJiri')->save();
 	$this->dispatch('refreshComponent');
 	$this->dispatch('refreshSidebar');
+    $this->dispatch('refreshDashboardItems');
 	Toaster::success('Le jiri a été mis en pause');
 };
 ?>

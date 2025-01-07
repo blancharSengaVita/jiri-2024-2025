@@ -23,37 +23,41 @@ $start = function () {
 	$this->mount($this->jiri);
 	$duties = Duties::where('jiri_id', $this->jiri->id)->get();
 	$sum = 0;
-	foreach ($duties as $duty) {
 
+    if ($this->jiri->students->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'élèves dans le jiri');
+        return false;
+    }
+
+    if ($this->jiri->evaluators->isEmpty()) {
+        Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
+        return false;
+    }
+
+
+    if ($this->jiri->duties->isEmpty()) {
+        Toaster::error('Il n\'y a pas de projects dans le jiri');
+        return false;
+    }
+
+	foreach ($duties as $duty) {
 		$sum += (int)$duty->weighting;
 
 		if ($duty['weighting'] === null || $duty['weighting'] === '') {
 			Toaster::error('Un projet ou plusieurs n\'ont pas de pondération.');
-			return;
-//            throw new StartJiriException('Un projet n\'a pas de pondération.');
+			return false;
 		}
 	}
 
 	if ($sum !== 100) {
 		Toaster::error('La somme des pondérations des projets doit être égale à 100.');
-		return;
-//        throw new StartJiriException('La somme des pondérations des projets doit être égale à 100.');
-	}
-
-	if ($this->jiri->evaluators->isEmpty()) {
-		Toaster::error('Il n\'y a pas d\'évaluateurs dans le jiri');
 		return false;
 	}
 
-	if ($this->jiri->students->isEmpty()) {
-		Toaster::error('Il n\'y a pas d\'élèves dans le jiri');
-		return false;
-	}
-
-	if ($this->jiri->projects->isEmpty()) {
-		Toaster::error('Il n\'y a pas de projects dans le jiri');
-		return false;
-	}
+	//pour chaque evaluator d'un jiri
+    //leur assigner un étudiants
+    //et pour chaques etudiants leurs assigner un projets
+    //leurs assigner un projets
 
 	$this->jiri = Jiri::find($this->jiri->id);
 	SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
