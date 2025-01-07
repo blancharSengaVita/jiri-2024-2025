@@ -52,8 +52,7 @@ class JiriLaunchedNotification extends Notification implements ShouldQueue
             ->line('Nous avons le plaisir de vous annoncer que le jiri ' . $this->jiri->name . ' est maintenant lancé.')
             ->line('Vous pouvez maintenant accéder à la plateforme et démarrer les évaluations.')
             ->action('Accéder au jiri', url('/evaluator?token='. $this->token))
-            ->line(__('Cordialement,'))
-            ->salutation(__('jiri.mail.salutation', ['name' => $this->name]));
+            ->salutation($this->name);
     }
 
     /**

@@ -37,7 +37,8 @@
 
 {{-- Salutation --}}
 @if (! empty($salutation))
-{{ $salutation }}<br>
+{{ 'Cordialement,' }}<br>
+    {{$salutation}}
 @else
 @lang('Regards,')<br>
 {{ config('app.name') }}
