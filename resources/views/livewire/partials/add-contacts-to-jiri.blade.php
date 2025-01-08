@@ -41,7 +41,7 @@ mount(function (Jiri $jiri, string $role) {
 
 
 $filteredContacts = computed(function () {
-    $result = auth()
+    return auth()
         ->user()
         ?->contacts()
         ->where('name', 'like', '%' . $this->search . '%')
@@ -49,7 +49,7 @@ $filteredContacts = computed(function () {
             $query->where('jiri_id', $this->jiri->id);
         })
         ->get();
-	return $result;
+
 });
 
 $addToJiri = function (Contact $contact) {
@@ -134,10 +134,18 @@ on(['attendanceUpdated' => function () {
 
                       Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
                     -->
-                    @if(!count($this->filteredContacts))
+                    @if(!count($this->filteredContacts) && $this->search !== '')
                         <li class="inputSearch relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900"
                             id="option-0" role="option" tabindex="-1">
                             <p>Aucun résultat</p>
+                        </li>
+                    @elseif(!count($this->filteredContacts) && $this->search === '')
+                        <li class="inputSearch relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 flex gap-x-2 items-center"
+                            id="option-0" role="option" tabindex="-1">
+                            <svg class="text-red-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                            </svg>
+                            <p>Tous les contacts ont déjà été ajouté</p>
                         </li>
                     @endif
                     @foreach($this->filteredContacts as $contact)
