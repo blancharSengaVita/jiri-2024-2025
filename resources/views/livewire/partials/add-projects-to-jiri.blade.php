@@ -262,11 +262,6 @@ on(['refreshComponent' => function () {
         class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4">
         <h2 class="text-base/7 font-semibold text-gray-900">Pondérations</h2>
         <p class="mt-1 text-sm/6 text-gray-500 mb-2">Ajouter une pondération aux projets. Vous pouvez enregistrer des pondérations dont la somme n'est pas 100 ou avec des pondérations vides mais, vous ne pourrez pas lancer le jiri.</p>
-{{--        <ol class="text-sm/6 text-gray-500 mb-2 list-decimal ms-6">--}}
-{{--            <li>La sommme des pondérations doit faire 100.</li>--}}
-{{--            <li>Vous pouvez enregistrer les ponderations même si la somme ne fait pas 100 mais vous ne pourrez pas lancer le jiri.</li>--}}
-{{--            <li>Tous les projets doivent avoir une pondération.</li>--}}
-{{--        </ol>--}}
 
         <div class="flex items-center gap-x-2">
             @if($this->weightingSum === 100)

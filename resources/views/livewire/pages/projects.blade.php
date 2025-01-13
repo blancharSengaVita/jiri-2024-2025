@@ -20,7 +20,6 @@ state([
 mount(function () {
     $this->drawer = false;
     $this->user = Auth::user()->load('projects');
-//    $this->projects = $this->user->projects()->orderBy('name')->get();
 });
 
 with(fn() => ['projects' => $this->user->projects()->orderBy('updated_at', 'desc')->paginate(10)]);

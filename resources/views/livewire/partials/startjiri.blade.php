@@ -3,6 +3,8 @@
 use function Livewire\Volt\{state, mount};
 use App\Models\Jiri;
 use App\Models\Duties;
+use \App\Models\Grade;
+use \App\Models\Attendance;
 use Masmerise\Toaster\Toaster;
 use App\Jobs\SendJiriLaunchedEmails;
 use Illuminate\Support\Facades\Auth;
@@ -10,11 +12,24 @@ use Illuminate\Support\Facades\Auth;
 state([
 	'jiri',
 	'user',
+	'evaluators',
+	'students',
+	'duties',
 ]);
 
 mount(function (Jiri $jiri) {
 	$this->jiri = $jiri;
 	$this->user = Auth::user();
+	$this->evaluators = Attendance::where('role', 'evaluator')
+        ->where('jiri_id', $this->jiri->id)
+        ->get();
+
+    $this->students = Attendance::where('role', 'student')
+        ->where('jiri_id', $this->jiri->id)
+        ->get();
+
+    $this->duties = Duties::where('jiri_id', $this->jiri->id)
+        ->get();
 });
 
 
@@ -54,10 +69,29 @@ $start = function () {
 		return false;
 	}
 
-	//pour chaque evaluator d'un jiri
-    //leur assigner un étudiants
-    //et pour chaques etudiants leurs assigner un projets
-    //leurs assigner un projets
+    foreach ($this->evaluators as $evaluator) {
+        foreach ($this->students as $student){
+			foreach ($this->duties as $duty){
+				Grade::firstOrCreate([
+                    'jiri_id' => $this->jiri->id,
+					'evaluator_id' => $evaluator->id,
+					'student_id' => $student->id,
+					'duty_id' => $duty->id,
+                    ]);
+            }
+        }
+	}
+
+    foreach ($this->students as $student){
+        foreach ($this->duties as $duty){
+            Grade::firstOrCreate([
+                'jiri_id' => $this->jiri->id,
+                'user_id' => $this->user->id,
+                'student_id' => $student->id,
+                'duty_id' => $duty->id,
+            ]);
+        }
+    }
 
 	$this->jiri = Jiri::find($this->jiri->id);
 	SendJiriLaunchedEmails::dispatch($this->jiri, $this->user->name);
