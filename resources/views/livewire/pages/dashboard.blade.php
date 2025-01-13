@@ -87,13 +87,13 @@ on([
                 </a>
             @endif
             @if(session('currentJiri')->canBePaused())
-                <livewire:partials.pauseJiri :jiri="session('currentJiri')"/>
+                <livewire:partials.pausejiri :jiri="session('currentJiri')"/>
             @endif
             @if(session('currentJiri')->canBeRelaunched())
-                <livewire:partials.restartJiri :jiri="session('currentJiri')"/>
+                <livewire:partials.restartjiri :jiri="session('currentJiri')"/>
             @endif
             @if(session('currentJiri')->canBeStopped())
-                <livewire:partials.stopJiri :jiri="session('currentJiri')"/>
+                <livewire:partials.stopjiri :jiri="session('currentJiri')"/>
             @endif
         </div>
     @else

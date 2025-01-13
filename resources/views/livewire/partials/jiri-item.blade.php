@@ -134,9 +134,9 @@ on([
 
     <div class="flex flex-none items-center gap-x-4">
         @if(session('currentJiri') && $jiri->id === session('currentJiri')->id && session('currentJiri')->canBeStopped())
-            <livewire:partials.stopJiri :$jiri/>
+            <livewire:partials.stopjiri :$jiri/>
         @else
-            <livewire:partials.startJiri :$jiri/>
+            <livewire:partials.startjiri :$jiri/>
         @endif
         <a wire:navigate href="{{route('pages.jiris.edit', $jiri)}}"
            class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">

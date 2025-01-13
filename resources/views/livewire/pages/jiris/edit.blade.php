@@ -122,18 +122,18 @@ on(['refreshComponent' => function () {
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex gap-x-2">
                 @if(session('currentJiri') && session('currentJiri')->id === $jiri->id)
                     @if(session('currentJiri')->canBePaused())
-                        <livewire:partials.pauseJiri :jiri="session('currentJiri')"/>
+                        <livewire:partials.pausejiri :jiri="session('currentJiri')"/>
                     @endif
                     @if(session('currentJiri')->canBeRelaunched())
-                        <livewire:partials.restartJiri :jiri="session('currentJiri')"/>
+                        <livewire:partials.restartjiri :jiri="session('currentJiri')"/>
                     @endif
                     @if(session('currentJiri')->canBeStopped())
-                        <livewire:partials.stopJiri :jiri="session('currentJiri')"/>
+                        <livewire:partials.stopjiri :jiri="session('currentJiri')"/>
                     @endif
                 @endif
                 {{--                @if(session('currentJiri'))--}}
                 @if(!session('currentJiri') || session('currentJiri')->id !== $jiri->id)
-                        <livewire:partials.startJiri :jiri="$jiri"/>
+                        <livewire:partials.startjiri :jiri="$jiri"/>
                     <button wire:click="openDeleteModal({{ $jiri }})" type="button"
                             class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                         Supprimer le jiri
