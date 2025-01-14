@@ -6,6 +6,9 @@ use App\Http\Middleware\VerifyEvaluatorToken;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+Route::get('/', function () {
+    return redirect()->route('login');
+})->middleware('guest');
 
 Volt::route('evaluator', 'pages.evaluator')
     ->middleware([isEvaluator::class,VerifyEvaluatorToken::class])
