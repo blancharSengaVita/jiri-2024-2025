@@ -58,8 +58,10 @@ on(['refreshComponent' => function () {
     deleteModal: $wire.entangle('deleteModal'),
     }"
 >
-
-    <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des contacts</h1>
+    <x-slot name="h1">
+        Liste des contacts
+    </x-slot>
+    <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des contacts</p>
     <div>
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">

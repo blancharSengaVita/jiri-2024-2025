@@ -62,16 +62,28 @@ on([
      x-data="{
      }"
 >
+    <x-slot name="h1">
+        @if(session('currentJiri'))
+            @if(session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+                Dashboard - jiri en cours : {{session('currentJiri')->name}}
+            @endif
+            @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+                Dashboard - jiri en pause : {{session('currentJiri')->name}}
+            @endif
+        @else
+            Dashboard
+        @endif
+    </x-slot>
     @if(session('currentJiri'))
         <div class="flex gap-x-2 items-center mb-2">
             @if(session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                    Dashboard - jiri en cours : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
+                <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                    Dashboard - jiri en cours : {{session('currentJiri')->name}}<span class="text-red-500"></span></p>
                 <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
             @endif
             @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
+                <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></p>
                 <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
             @endif
         </div>
@@ -98,8 +110,8 @@ on([
         </div>
     @else
         <div class="flex gap-x-2 items-center mb-4">
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                Dashboard<span class="text-red-500"></span></h1>
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                Dashboard<span class="text-red-500"></span></p>
         </div>
     @endif
     @if(session('currentJiri'))
@@ -176,7 +188,6 @@ on([
                 @if(count($projects))
                     <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
                         @foreach($projects as $project)
-                            {{--                    {{ $projects }}--}}
                             <livewire:partials.project-item :$project :key="'project'.$project->id"/>
                         @endforeach
                     </ul>
