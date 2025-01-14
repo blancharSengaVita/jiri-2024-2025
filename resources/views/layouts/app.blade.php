@@ -31,7 +31,7 @@
 
     <!-- Page Content -->
     <livewire:sidebar/>
-    <main class="py-10 lg:pl-72 h-auto">
+    <main class="py-10 lg:pl-72 h-auto bg-gray-100">
         <div class="px-4 sm:px-6 lg:px-8 h-auto">
             {{$slot}}
         </div>
