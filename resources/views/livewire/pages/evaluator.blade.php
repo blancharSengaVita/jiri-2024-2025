@@ -28,24 +28,13 @@ mount(function () {
      x-data="{
      }"
 >
-{{--    @if(session('currentJiri'))--}}
-{{--        <div class="flex gap-x-2 items-center mb-2">--}}
-{{--            @if(session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)--}}
-{{--                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">--}}
-{{--                    Dashboard - jiri en cours : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>--}}
-{{--                <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>--}}
-{{--            @endif--}}
-{{--            @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)--}}
-{{--                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">--}}
-{{--                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>--}}
-{{--                <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>--}}
-{{--            @endif--}}
-{{--        </div>--}}
-{{--    @else--}}
+    <x-slot name="h1">
+        Bonjour, {{$user->contact->name}}
+    </x-slot>
         <div class="items-center mb-4">
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
                 Bonjour, {{$user->contact->name}}
-                <span class="text-red-500"></span></h1>
+                <span class="text-red-500"></span></p>
         </div>
         <div class="gap-4">
             <div class="col-span-5 mb-6">
@@ -53,6 +42,5 @@ mount(function () {
                 <livewire:partials.student-to-evaluate :jiri="$jiri"/>
             </div>
         </div>
-{{--    @endif--}}
 </div>
 

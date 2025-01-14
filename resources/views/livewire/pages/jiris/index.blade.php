@@ -11,91 +11,91 @@ use App\Models\Duties;
 layout('layouts.app');
 
 state([
-	'drawer',
-	'jiris',
-	'jiri',
-	'user',
-	'name',
-	'date',
-	'id',
-	'deleteModal',
+    'drawer',
+    'jiris',
+    'jiri',
+    'user',
+    'name',
+    'date',
+    'id',
+    'deleteModal',
 ]);
 
 rules(fn() => [
-	'name' => 'required',
-	'date' => 'required|date',
+    'name' => 'required',
+    'date' => 'required|date',
 ])->messages([
-	'name.required' => 'Le champ est obligatoire.',
-	'date.required' => 'Le champ est obligatoire.',
-	'date.date' => 'Le champ doit être une date.',
+    'name.required' => 'Le champ est obligatoire.',
+    'date.required' => 'Le champ est obligatoire.',
+    'date.date' => 'Le champ doit être une date.',
 ])->attributes([
 ]);
 
 mount(function () {
-	$this->drawer = false;
-	$this->user = Auth::user()->load('jiris');
-	$this->jiris = $this->user->jiris()->orderBy('updated_at')->get();
+    $this->drawer = false;
+    $this->user = Auth::user()->load('jiris');
+    $this->jiris = $this->user->jiris()->orderBy('updated_at')->get();
 });
 
 $openCreateDrawer = function () {
-	$this->mount();
-	$this->dispatch('openCreateJiriDrawer');
+    $this->mount();
+    $this->dispatch('openCreateJiriDrawer');
 };
 
 $closeCreateDrawer = function () {
-	$this->mount();
-	$this->drawer = false;
+    $this->mount();
+    $this->drawer = false;
 };
 
 $edit = function (Jiri $jiri) {
-	$this->mount();
-	$this->drawer = true;
-	$this->id = $jiri->id;
-	$this->name = $jiri->name;
-	$this->date = $jiri->date;
+    $this->mount();
+    $this->drawer = true;
+    $this->id = $jiri->id;
+    $this->name = $jiri->name;
+    $this->date = $jiri->date;
 };
 
 $save = function () {
-	try {
-		$this->validate();
-	} catch (\Illuminate\Validation\ValidationException $e) {
-		throw $e;
-	}
+    try {
+        $this->validate();
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        throw $e;
+    }
 
-	Jiri::updateOrCreate([
-		'user_id' => Auth::id(),
-		'id' => $this->id,
-	],
-		[
-			'name' => $this->name,
-			'date' => $this->date,
-		]);
+    Jiri::updateOrCreate([
+        'user_id' => Auth::id(),
+        'id' => $this->id,
+    ],
+        [
+            'name' => $this->name,
+            'date' => $this->date,
+        ]);
 
-	$this->drawer = false;
-	if ($this->id === 0) {
-		Toaster::success('Projet ajouté avec succès');
-	}
+    $this->drawer = false;
+    if ($this->id === 0) {
+        Toaster::success('Projet ajouté avec succès');
+    }
 
-	if ($this->id !== 0) {
-		Toaster::success('Projet modifiée avec succès');
-	};
-	on([
-		'refreshComponent' => function (string $role = null, Jiri|null $jiri = null) {
-			$this->mount();
-		}
-	]);
+    if ($this->id !== 0) {
+        Toaster::success('Projet modifiée avec succès');
+    };
+    on([
+        'refreshComponent' => function (string $role = null, Jiri|null $jiri = null) {
+            $this->mount();
+        }
+    ]);
 };
 
 $openDeleteModal = function (Jiri $jiri) {
-	$this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
+    $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 };
 
 on(['refreshComponent' => function () {
-	$this->mount();
+    $this->mount();
 }]);
 
 on(['openDrawer' => function () {
-	$this->openCreateDrawer();
+    $this->openCreateDrawer();
 }]);
 ?>
 
@@ -105,8 +105,11 @@ on(['openDrawer' => function () {
     deleteModal: $wire.entangle('deleteModal'),
     }"
 >
+    <x-slot name="h1">
+        Liste des jiris
+    </x-slot>
     <div class="h-auto">
-        <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des jiris</h1>
+        <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des jiris</p>
         <div class="sm:flex sm:items-center">
             <div class="sm:flex-auto">
                 <p class="mt-2 text-sm text-gray-700">La liste de tout vos jiris</p>

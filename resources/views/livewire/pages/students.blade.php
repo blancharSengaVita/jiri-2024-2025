@@ -82,6 +82,9 @@ $cancel = function (Grade $grade) {
         });
      "
 >
+    <x-slot name="h1">
+        {{$this->student->contact->name}}, {{$this->jiri->name}}
+    </x-slot>
     <div class="flex gap-x-2 items-center mb-4">
         <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             {{$this->student->contact->name}}, {{$this->jiri->name}} <span class="text-red-500"></span></h1>

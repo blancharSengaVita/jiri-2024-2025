@@ -16,82 +16,82 @@ usesFileUploads();
 layout('layouts.app');
 
 state([
-	'drawer',
-	'jiri',
-	'students',
-	'evaluators',
-	'user',
-	'date',
-	'name' => '',
-	'id',
-	'deleteModal',
-	'contacts',
-	'contact',
-	'id',
+    'drawer',
+    'jiri',
+    'students',
+    'evaluators',
+    'user',
+    'date',
+    'name' => '',
+    'id',
+    'deleteModal',
+    'contacts',
+    'contact',
+    'id',
 ]);
 
 rules(fn() => [
-	'name' => 'required',
-	'date' => 'required|date',
+    'name' => 'required',
+    'date' => 'required|date',
 ])->messages([
-	'name.required' => 'Le nom est obligatoire.',
-	'date.required' => 'La date est obligatoire.',
+    'name.required' => 'Le nom est obligatoire.',
+    'date.required' => 'La date est obligatoire.',
 ])->attributes([
 ]);
 
 mount(function (Jiri $jiri) {
-	$this->students = $jiri->students;
-	$this->evaluators = $jiri->evaluators;
-	$this->user = Auth::user();
-	$this->jiri = $jiri;
-	$this->id = $jiri->id;
-	$this->date = Carbon::parse($jiri->starting_at)->format('Y-m-d');
-	$this->name = $jiri->name;
+    $this->students = $jiri->students;
+    $this->evaluators = $jiri->evaluators;
+    $this->user = Auth::user();
+    $this->jiri = $jiri;
+    $this->id = $jiri->id;
+    $this->date = Carbon::parse($jiri->starting_at)->format('Y-m-d');
+    $this->name = $jiri->name;
 });
 
 $cancel = function () {
-	$this->resetValidation();
-	$this->mount($this->jiri);
+    $this->resetValidation();
+    $this->mount($this->jiri);
 };
 
 
 $save = function () {
-	try {
-		$this->validate();
-	} catch (\Illuminate\Validation\ValidationException $e) {
-		throw $e;
-	}
+    try {
+        $this->validate();
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        throw $e;
+    }
 
 
-	Jiri::updateOrCreate([
-		'user_id' => Auth::id(),
-		'id' => $this->jiri->id,
-	],
-		[
-			'name' => $this->name,
-			'starting_at' => $this->date,
-		]);
+    Jiri::updateOrCreate([
+        'user_id' => Auth::id(),
+        'id' => $this->jiri->id,
+    ],
+        [
+            'name' => $this->name,
+            'starting_at' => $this->date,
+        ]);
 
-	$this->jiri->starting_at = Carbon::parse($this->date)->format('Y-m-d');
-	$this->jiri->name = $this->name;
+    $this->jiri->starting_at = Carbon::parse($this->date)->format('Y-m-d');
+    $this->jiri->name = $this->name;
 
-	if ($this->id === 0) {
-		Toaster::success('Jiri ajouté avec succès');
-	}
+    if ($this->id === 0) {
+        Toaster::success('Jiri ajouté avec succès');
+    }
 
-	if ($this->id !== 0) {
-		Toaster::success('Jiri modifiée avec succès');
-	}
-	$this->mount($this->jiri);
+    if ($this->id !== 0) {
+        Toaster::success('Jiri modifiée avec succès');
+    }
+    $this->mount($this->jiri);
 };
 
 
 $openDeleteModal = function (Jiri $jiri) {
-	$this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
+    $this->dispatch('openDeleteModal', modelId: $jiri->id, modelName: 'App\Models\Jiri')->to('partials.delete-modal');
 };
 
 on(['refreshComponent' => function () {
-	$this->mount($this->jiri);
+    $this->mount($this->jiri);
 }]);
 ?>
 
@@ -101,17 +101,26 @@ on(['refreshComponent' => function () {
     deleteModal: $wire.entangle('deleteModal'),
     }"
 >
+    <x-slot name="h1">
+        @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+            {{$jiri->name}} (Jiri en cours)
+        @elseif(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+            {{$jiri->name}} (Jiri en cours)
+        @else
+            {{$jiri->name}}
+        @endif
+    </x-slot>
     <div class="flex gap-x-2 items-center mb-2 mt-2">
         @if(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
-                cours)</h1>
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
+                cours)</p>
             <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
         @elseif(session('currentJiri') && session('currentJiri')->id === $jiri->id && session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
-                cours)</h1>
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}} (Jiri en
+                cours)</p>
             <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
         @else
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}}</h1>
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">{{$jiri->name}}</p>
         @endif
     </div>
     <div>
@@ -131,9 +140,8 @@ on(['refreshComponent' => function () {
                         <livewire:partials.stopjiri :jiri="session('currentJiri')"/>
                     @endif
                 @endif
-                {{--                @if(session('currentJiri'))--}}
                 @if(!session('currentJiri') || session('currentJiri')->id !== $jiri->id)
-                        <livewire:partials.startjiri :jiri="$jiri"/>
+                    <livewire:partials.startjiri :jiri="$jiri"/>
                     <button wire:click="openDeleteModal({{ $jiri }})" type="button"
                             class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                         Supprimer le jiri

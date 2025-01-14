@@ -300,11 +300,9 @@ on(['refreshComponent' => function () {
         <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 my-4 border-t border-gray-100 pt-2
                 text-sm/6">
             @foreach($duties as $key => $duty)
-                {{--            @dump($duties[$key]['name'])--}}
                 <fieldset class="text-sm/6">
                     <label for="name"
                            class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">{{$duty['name']}}</label>
-                    {{--                           {{$duty['weighting']}}--}}
                     <input type="number"
                            name="name"
                            id="name"

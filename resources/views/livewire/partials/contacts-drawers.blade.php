@@ -181,7 +181,6 @@ on([
         @keydown.escape="open = false"
         x-cloak
         x-show="open"
-        {{--         :class="open ? 'relative' : 'hidden'"--}}
         class="z-50" aria-labelledby="slide-over-title" role="dialog"
         aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->
@@ -334,8 +333,6 @@ on([
                                                                ring-gray-300
                                                                sm:text-sm sm:leading-6
                                                                text-base bg-white
-{{--                                                               focus:ring-2--}}
-{{--                                                               focus:ring-indigo-600--}}
                                                                file:rounded-md
                                                                file:focus:ring-0
                                                                file:border-0

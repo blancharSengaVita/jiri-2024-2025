@@ -48,6 +48,9 @@ on(['refreshComponent' => function () {
     deleteModal: $wire.entangle('deleteModal'),
     }"
 >
+    <x-slot name="h1">
+        Liste des projets
+    </x-slot>
     <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">Liste des projets</h1>
     <div>
         <div class="sm:flex sm:items-center">
