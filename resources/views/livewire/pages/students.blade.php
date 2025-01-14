@@ -95,7 +95,10 @@ on(['saved' => function () {
     {{--           wire:model.live="coucou"--}}
     {{--           class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6">--}}
     @foreach($grades as $grade)
-        <form wire:submit.prevent="save({{$grade}})" class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4">
+        <form wire:submit.prevent="save({{$grade}})"
+              class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4"
+              id="fieldset-{{$grade->duty->project->name}}"
+        >
             <div class="flex items-center gap-x-2">
                 @if(true)
                     <h2 class="text-base/7 font-semibold text-gray-900">{{$grade->duty->project->name}}</h2>
@@ -173,6 +176,9 @@ on(['saved' => function () {
             mark.addEventListener('change', (e) => {
                 if (parseInt(mark.value) !== initialValues[mark.id]) {
                     console.log('On a changé');
+                    //mettre un valeur à false dans un variable
+                    //si cette valeur est à false, avec alpine on va faire apparaitre un texte en rouge dans le fieldset qui a l'id de mark (pour alpine utiliser le x-show sur cette variable qui doit etre un variable unique au fieldset
+                    //sinon cette valeur vaut vrai et aucun text s'affiche
                 }
             });
         });
