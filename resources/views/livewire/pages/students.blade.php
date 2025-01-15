@@ -58,9 +58,9 @@ $save = function (Grade $grade) {
 			'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20',
 		],
 			[
-				'marks.' . $grade->duty->project->name . '.numeric' => 'Le champ doit être un nombre',
-				'marks.' . $grade->duty->project->name . '.min' => 'Le nombre ne doit pas être inferieur à 0',
-				'marks.' . $grade->duty->project->name . '.max' => 'Le nombre ne doit pas être superieur à 20',
+				'marks.' . $grade->duty->project->name . '.numeric' => 'La note doit être un nombre',
+				'marks.' . $grade->duty->project->name . '.min' => 'La note ne doit pas être inferieur à 0',
+				'marks.' . $grade->duty->project->name . '.max' => 'La note ne doit pas être superieur à 20',
 			]);
 	} catch (\Illuminate\Validation\ValidationException $e) {
 		throw $e;
@@ -78,10 +78,6 @@ $cancel = function (Grade $grade) {
 	$this->marks[$grade->duty->project->name] = $grade->grade;
 	$this->comments[$grade->duty->project->name] = $grade->comment;
 };
-
-on(['saved' => function () {
-	Toaster::success('saved');
-}])
 ?>
 
 <div class="py-10"
