@@ -91,7 +91,6 @@ $saveContact = function () {
 	try {
 		$this->validate();
 	} catch (\Illuminate\Validation\ValidationException $e) {
-		Toaster::error('salut');
 		throw $e;
 	}
 

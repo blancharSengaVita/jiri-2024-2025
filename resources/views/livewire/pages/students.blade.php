@@ -9,72 +9,102 @@ use Illuminate\Support\Collection;
 use \Masmerise\Toaster\Toaster;
 
 state([
-    'student',
-    'evaluator',
-    'jiri',
-    'implementations',
-    'grades',
-    'marks',
-    'updated',
-    'comments',
-    'coucou',
+	'student',
+	'evaluator',
+	'jiri',
+	'implementations',
+	'grades',
+	'marks',
+	'updated',
+	'comments',
+	'coucou',
 ]);
 
 layout('layouts.app');
 
-rules(fn() => [
-    'marks.*' => 'numeric',
-])->messages([
-    'marks.*.required' => 'Le champ doit être un nombre',
-])->attributes([
-]);
+//rules(fn() => [
+////	'marks.*' => 'numeric|max:20|min:0',
+//])->messages([
+//	'marks.*.numeric' => 'Le champ doit être un nombre',
+//	'marks.*.min' => 'Le nombre ne doit pas être inferieur à 0',
+//	'marks.*.max' => 'Le nombre ne doit pas être superieur à 20',
+//])->attributes([
+//]);
+
+//rules(fn() => [
+//    'name' => 'required',
+//    'description' => 'required',
+//    'linkInputs.*' => 'sometimes',
+//    'tasks.*' => 'sometimes',
+//])->messages([
+//    'name.required' => 'Le champ est obligatoire.',
+//    'description.required' => 'Le champ est obligatoire.',
+//    'linkInputs.*.required' => 'Le champ est obligatoire.',
+//    'tasks.*.required' => 'Le champ est obligatoire.',
+//    'linkInputs.*.sometimes' => 'Le champ est obligatoire.',
+//    'tasks.*.sometimes' => 'Le champ est obligatoire.',
+//])->attributes([
+//]);
 
 mount(function (Attendance $student) {
-    $this->student = $student;
-    $this->student->load('jiri');
-    $this->jiri = $this->student->jiri;
-    $this->marks = new Collection();
-    $this->comments = new Collection();
-    $this->updateds = new Collection();
-    $this->marksBackup = $this->marks->toArray();
+	$this->student = $student;
+	$this->student->load('jiri');
+	$this->jiri = $this->student->jiri;
+	$this->marks = new Collection();
+	$this->comments = new Collection();
+	$this->updateds = new Collection();
+	$this->marksBackup = $this->marks->toArray();
 
+	$gradeQuery = Grade::where('jiri_id', $this->jiri->id)
+		->where('student_id', $this->student->id);
 
-    $gradeQuery = Grade::where('jiri_id', $this->jiri->id)
-        ->where('student_id', $this->student->id);
+	if (auth::check()) {
+		$this->user = Auth::user();
+		$this->grades = $gradeQuery->where('user_id', $this->user->id)->get();
+	}
 
-    if (auth::check()) {
-        $this->user = Auth::user();
-        $this->grades = $gradeQuery->where('user_id', $this->user->id)->get();
-    }
+	if (session('evaluator')) {
+		$this->evaluator = session('evaluator');
+		$this->grades = $gradeQuery->where('evaluator_id', $this->evaluator->id)->get();
+	}
 
-    if (session('evaluator')) {
-        $this->evaluator = session('evaluator');
-        $this->grades = $gradeQuery->where('evaluator_id', $this->evaluator->id)->get();
-    }
-
-    foreach ($this->grades as $grade) {
-        $grade->load('duty');
-        $this->marks->put($grade->duty->project->name, $grade->grade);
-        $this->comments->put($grade->duty->project->name, $grade->comment);
-        $grade->updated = false;
-    }
+	foreach ($this->grades as $grade) {
+		$grade->load('duty');
+		$this->marks->put($grade->duty->project->name, $grade->grade);
+		$this->comments->put($grade->duty->project->name, $grade->comment);
+		$grade->updated = false;
+	}
 });
 
 $save = function (Grade $grade) {
-    $grade->grade = $this->marks[$grade->duty->project->name];
-    $grade->comment = $this->comments[$grade->duty->project->name];
-    $grade->save();
-    Toaster::success('Changement enregistré pour le projet : ' . $grade->duty->project->name);
-    $this->dispatch('saved')->self();
+	try {
+        $this->validate([
+            'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20',
+        ],
+            [
+                // Messages personnalisés pour chaque règle de validation
+                'marks.' . $grade->duty->project->name. '.numeric' => 'Le champ doit être un nombre',
+                'marks.' . $grade->duty->project->name .'.min' => 'Le nombre ne doit pas être inferieur à 0',
+                'marks.' . $grade->duty->project->name .  '.max' => 'Le nombre ne doit pas être superieur à 20',
+            ]);
+	} catch (\Illuminate\Validation\ValidationException $e) {
+		throw $e;
+	}
+
+	$grade->grade = $this->marks[$grade->duty->project->name];
+	$grade->comment = $this->comments[$grade->duty->project->name];
+	$grade->save();
+	Toaster::success('Changement enregistré pour le projet : ' . $grade->duty->project->name);
+	$this->dispatch('saved')->self();
 };
 
 $cancel = function (Grade $grade) {
-    $this->marks[$grade->duty->project->name] = $grade->grade;
-    $this->comments[$grade->duty->project->name] = $grade->comment;
+	$this->marks[$grade->duty->project->name] = $grade->grade;
+	$this->comments[$grade->duty->project->name] = $grade->comment;
 };
 
 on(['saved' => function () {
-    Toaster::success('saved');
+	Toaster::success('saved');
 }])
 ?>
 
@@ -97,21 +127,19 @@ on(['saved' => function () {
               x-data="
               {
               mark: $wire.entangle('marks.{{$grade->duty->project->name}}'),
-              initialMarkValue: null,
+              comment : $wire.entangle('comments.{{$grade->duty->project->name}}'),
+              initialMarkValue : null,
+              initialCommentValue : '',
               showErrorChange : false
               }
               "
 
               x-init="
+              initialCommentValue = comment;
               initialMarkValue = parseInt(mark);
-              $watch('mark', value =>{
-              if (parseInt(initialMarkValue) === parseInt(mark)){
-              showErrorChange = false;
-              }else {
-              showErrorChange = true;
-              }
-              });
-              $wire.on('saved', () => {initialMarkValue = parseInt(mark); showErrorChange = false;});
+              $watch('comment', value => showErrorChange = initialCommentValue!==value);
+              $watch('mark', value => showErrorChange = parseInt(initialMarkValue)!==parseInt(value));
+              $wire.on('saved', () => {initialMarkValue = parseInt(mark); initialCommentValue = comment; showErrorChange = false;});
               "
         >
             <div class="flex items-center gap-x-4">
@@ -134,12 +162,12 @@ on(['saved' => function () {
                            x-init="$el.focus()"
                        autofocus
                        @endif
-                       x-model="mark"
+                       {{--                       x-model="mark"--}}
                        name="mark-{{$grade->duty->project->name}}"
                        id="mark-{{$grade->duty->project->name}}"
                        wire:model.live="marks.{{$grade->duty->project->name}}"
                        class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6 marks">
-                @if ($messages = $errors->get('marks' . $grade->duty->project->name))
+                @if ($messages = $errors->get('marks.' . $grade->duty->project->name))
                     <div class="text-sm text-red-600 space-y-1 mt-2">
                         <p>{{$messages[0]}}</p>
                     </div>
@@ -149,11 +177,12 @@ on(['saved' => function () {
                 <label for="date"
                        class="mt-2 block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Commentaire</label>
                 <textarea
+                    {{--                    x-model="comment"--}}
                     name="comment-{{$grade->duty->project->name}}"
                     id="comment-{{$grade->duty->project->name}}"
                     wire:model.live="comments.{{$grade->duty->project->name}}"
                     class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6 comments" rows="5"></textarea>
-                @if ($messages = $errors->get('comments' . $grade->duty->project->name))
+                @if ($messages = $errors->get('comments.' . $grade->duty->project->name))
                     <div class="text-sm text-red-600 space-y-1 mt-2">
                         <p>{{$messages[0]}}</p>
                     </div>
