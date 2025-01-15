@@ -55,12 +55,13 @@ mount(function (Attendance $student) {
 $save = function (Grade $grade) {
 	try {
 		$this->validate([
-			'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20',
+			'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20|required',
 		],
 			[
-				'marks.' . $grade->duty->project->name . '.numeric' => 'Le champ doit être un nombre',
-				'marks.' . $grade->duty->project->name . '.min' => 'Le nombre ne doit pas être inferieur à 0',
-				'marks.' . $grade->duty->project->name . '.max' => 'Le nombre ne doit pas être superieur à 20',
+				'marks.' . $grade->duty->project->name . '.numeric' => 'La note doit être un nombre',
+				'marks.' . $grade->duty->project->name . '.min' => 'La note ne doit pas être inferieur à 0',
+				'marks.' . $grade->duty->project->name . '.max' => 'La note ne doit pas être superieur à 20',
+				'marks.' . $grade->duty->project->name . '.required' => 'La note est obligatoire',
 			]);
 	} catch (\Illuminate\Validation\ValidationException $e) {
 		throw $e;
@@ -77,11 +78,8 @@ $cancel = function (Grade $grade) {
     $this->resetValidation();
 	$this->marks[$grade->duty->project->name] = $grade->grade;
 	$this->comments[$grade->duty->project->name] = $grade->comment;
+    $this->dispatch('cancel')->self();
 };
-
-on(['saved' => function () {
-	Toaster::success('saved');
-}])
 ?>
 
 <div class="py-10"
@@ -116,6 +114,7 @@ on(['saved' => function () {
               $watch('comment', value => showErrorChange = initialCommentValue!==value);
               $watch('mark', value => showErrorChange = parseInt(initialMarkValue)!==parseInt(value));
               $wire.on('saved', () => {initialMarkValue = parseInt(mark); initialCommentValue = comment; showErrorChange = false;});
+              $wire.on('cancel', () => {showErrorChange = false;});
               "
         >
             <div class="flex items-center gap-x-4">

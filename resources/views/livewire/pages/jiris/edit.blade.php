@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Masmerise\Toaster\Toaster;
 use App\Exceptions\StartJiriException;
 use App\Jobs\SendJiriLaunchedEmails;
-use function Livewire\Volt\{layout, mount, rules, state, computed, usesFileUploads, on};
+use function Livewire\Volt\{layout, mount, rules, state, computed, usesFileUploads, on, updated};
 
 usesFileUploads();
 layout('layouts.app');
@@ -22,7 +22,10 @@ state([
     'evaluators',
     'user',
     'date',
+    'Initialdate' => '',
     'name' => '',
+    'Initialname' => '',
+    'showNameDateLiveError',
     'id',
     'deleteModal',
     'contacts',
@@ -47,6 +50,10 @@ mount(function (Jiri $jiri) {
     $this->id = $jiri->id;
     $this->date = Carbon::parse($jiri->starting_at)->format('Y-m-d');
     $this->name = $jiri->name;
+
+	$this->showNameDateLiveError = false;
+	$this->InitialName = $jiri->name;
+	$this->InitialDate = $jiri->date;
 });
 
 $cancel = function () {
@@ -150,8 +157,20 @@ on(['refreshComponent' => function () {
             </div>
         </div>
 
-        <form wire:submit.prevent="save" class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4">
-            <h2 class="text-base/7 font-semibold text-gray-900">Information général</h2>
+        <form wire:submit.prevent="save" class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4"
+              x-data="{
+              showNameDateLiveError: $wire.entangle('showNameDateLiveError')
+              }"
+        >
+            <div class="flex items-center gap-x-4">
+                <h2 class="text-base/7 font-semibold text-gray-900">Information général</h2>
+                <div class="flex gap-x-2 items-center" x-cloak x-show="showNameDateLiveError">
+                    <svg class="text-red-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
+                        <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-sm text-red-600" id="email-error"> Les changements n'ont pas été enregistré</p>
+                </div>
+            </div>
             <p class="mt-1 text-sm/6 text-gray-500">Nom et date du début du jiri</p>
 
             <fieldset class="mt-6 pt-2 border-t border-gray-200 text-sm/6">
