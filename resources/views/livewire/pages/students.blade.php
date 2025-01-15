@@ -70,7 +70,7 @@ $save = function (Grade $grade) {
 
 $cancel = function (Grade $grade) {
     $this->marks[$grade->duty->project->name] = $grade->grade;
-    $this->comments[$grade->duty->project->name] = $grade->comments;
+    $this->comments[$grade->duty->project->name] = $grade->comment;
 };
 
 on(['saved' => function () {
@@ -80,6 +80,7 @@ on(['saved' => function () {
 
 <div class="py-10"
      x-data="{
+
      }"
 >
     <x-slot name="h1">
@@ -89,36 +90,51 @@ on(['saved' => function () {
         <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
             {{$this->student->contact->name}}, {{$this->jiri->name}} <span class="text-red-500"></span></h1>
     </div>
-    {{--    <input type="text"--}}
-    {{--           name="coucou"--}}
-    {{--           id="coucou"--}}
-    {{--           wire:model.live="coucou"--}}
-    {{--           class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6">--}}
     @foreach($grades as $grade)
         <form wire:submit.prevent="save({{$grade}})"
               class=" bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5 p-4"
               id="fieldset-{{$grade->duty->project->name}}"
+              x-data="
+              {
+              mark: $wire.entangle('marks.{{$grade->duty->project->name}}'),
+              initialMarkValue: null,
+              showErrorChange : false
+              }
+              "
+
+              x-init="
+              initialMarkValue = parseInt(mark);
+              $watch('mark', value =>{
+              if (parseInt(initialMarkValue) === parseInt(mark)){
+              showErrorChange = false;
+              }else {
+              showErrorChange = true;
+              }
+              });
+              $wire.on('saved', () => {initialMarkValue = parseInt(mark); showErrorChange = false;});
+              "
         >
-            <div class="flex items-center gap-x-2">
-                @if(true)
-                    <h2 class="text-base/7 font-semibold text-gray-900">{{$grade->duty->project->name}}</h2>
-                @else
-                    <h2 class="text-base/7 font-semibold text-gray-900">{{$grade->duty->project->name}}</h2>
+            <div class="flex items-center gap-x-4">
+                <h2 class="text-base/7 font-semibold text-gray-900">{{$grade->duty->project->name}}</h2>
+                <div class="flex gap-x-2 items-center" x-cloak x-show="showErrorChange">
                     <svg class="text-red-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
                         <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
                     </svg>
                     <p class="text-sm text-red-600" id="email-error"> Les changements n'ont pas été enregistré</p>
-                @endif
+                </div>
             </div>
 
             <p class="mt-1 text-sm/6 text-gray-500">{{$grade->duty->project->description}}</p>
             <fieldset class="mt-6 pt-2 border-t border-gray-200 text-sm/6">
                 <label for="name" class="mt-2 block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Note sur 20</label>
                 <input type="number"
+                       {{--                       x-on:change.debounce="validateEmail($event)"--}}
+                       {{--                       x-model="userEmail"--}}
                        @if ($loop->first)
                            x-init="$el.focus()"
                        autofocus
                        @endif
+                       x-model="mark"
                        name="mark-{{$grade->duty->project->name}}"
                        id="mark-{{$grade->duty->project->name}}"
                        wire:model.live="marks.{{$grade->duty->project->name}}"
@@ -159,36 +175,4 @@ on(['saved' => function () {
         </form>
     @endforeach
 </div>
-@script
-<script>
-    addEventListener('DOMContentLoaded', (event) => {
-        const initialValues = {};
-
-        const marks = document.querySelectorAll('.marks');
-        const comments = document.querySelectorAll('.comments');
-
-        function setInitialValues (input) {
-                initialValues[input.id] = parseInt(input.value);
-        }
-
-        marks.forEach((mark) => {
-            setInitialValues(mark);
-            mark.addEventListener('change', (e) => {
-                if (parseInt(mark.value) !== initialValues[mark.id]) {
-                    console.log('On a changé');
-                    //mettre un valeur à false dans un variable
-                    //si cette valeur est à false, avec alpine on va faire apparaitre un texte en rouge dans le fieldset qui a l'id de mark (pour alpine utiliser le x-show sur cette variable qui doit etre un variable unique au fieldset
-                    //sinon cette valeur vaut vrai et aucun text s'affiche
-                }
-            });
-        });
-
-        $wire.on('saved', () => {
-            marks.forEach((mark) => {
-                setInitialValues(mark);
-            });
-        });
-    });
-</script>
-@endscript
 
