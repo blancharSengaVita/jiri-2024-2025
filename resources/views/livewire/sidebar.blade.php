@@ -68,7 +68,7 @@ on(['refreshSidebar' => function () {
 }]);
 ?>
 
-<nav
+<div
     x-data="{
     open: $wire.entangle('mobileMenu'),
     disconnectButton: $wire.entangle('disconnectButton'),
@@ -128,7 +128,7 @@ on(['refreshSidebar' => function () {
                              src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
                              alt="Your Company">
                     </div>
-                    <nav class="flex flex-1 flex-col">
+                    <div class="flex flex-1 flex-col">
                         <ul role="list" class="flex flex-1 flex-col gap-y-7">
                             <li>
                                 <ul role="list" class="-mx-2 space-y-1">
@@ -208,7 +208,7 @@ on(['refreshSidebar' => function () {
                                 </ul>
                             </li>
                         </ul>
-                    </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -223,6 +223,7 @@ on(['refreshSidebar' => function () {
                      alt="Your Company">
             </div>
             <nav class="flex flex-1 flex-col">
+                <h2 class="sr-only" >Menu de navigation</h2>
                 <ul role="list" class="flex flex-1 flex-col gap-y-7">
                     <li>
                         <ul role="list" class="-mx-2 space-y-1">
@@ -242,7 +243,7 @@ on(['refreshSidebar' => function () {
                                         Dashboard
                                     </a>
                                 </li>
-                            @endguest()
+                            @endguest
                             @auth()
                                 <li>
                                     <!-- Current: "bg-gray-800 text-white", Default: "text-gray-400 hover:text-white hover:bg-gray-800" -->
@@ -346,8 +347,9 @@ on(['refreshSidebar' => function () {
         </div>
     </div>
 
-    <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden"
+    <nav class="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden"
          @click.away="open = false">
+        <h2 class="sr-only">Menu de navigation</h2>
         <button wire:click="openMobileMenu" type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden">
             <span class="sr-only">Open sidebar</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -387,5 +389,5 @@ on(['refreshSidebar' => function () {
                 </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>

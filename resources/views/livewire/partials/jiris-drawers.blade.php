@@ -113,7 +113,6 @@ on([
         @keydown.escape="open = false"
         x-cloak
         x-show="open"
-        {{--         :class="open ? 'relative' : 'hidden'"--}}
         class="z-50" aria-labelledby="slide-over-title" role="dialog"
         aria-modal="true">
         <!-- Background backdrop, show/hide based on slide-over state. -->

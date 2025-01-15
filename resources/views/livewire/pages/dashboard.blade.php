@@ -62,16 +62,28 @@ on([
      x-data="{
      }"
 >
+    <x-slot name="h1">
+        @if(session('currentJiri'))
+            @if(session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
+                Dashboard - jiri en cours : {{session('currentJiri')->name}}
+            @endif
+            @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
+                Dashboard - jiri en pause : {{session('currentJiri')->name}}
+            @endif
+        @else
+            Dashboard
+        @endif
+    </x-slot>
     @if(session('currentJiri'))
         <div class="flex gap-x-2 items-center mb-2">
             @if(session('currentJiri')->status === Jiri::STATUS_IN_PROGRESS)
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                    Dashboard - jiri en cours : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
+                <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                    Dashboard - jiri en cours : {{session('currentJiri')->name}}<span class="text-red-500"></span></p>
                 <div class="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
             @endif
             @if(session('currentJiri')->status === Jiri::STATUS_ON_PAUSE)
-                <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></h1>
+                <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                    Dashboard - jiri en pause : {{session('currentJiri')->name}}<span class="text-red-500"></span></p>
                 <div class="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
             @endif
         </div>
@@ -98,8 +110,8 @@ on([
         </div>
     @else
         <div class="flex gap-x-2 items-center mb-4">
-            <h1 class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-                Dashboard<span class="text-red-500"></span></h1>
+            <p class="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+                Dashboard<span class="text-red-500"></span></p>
         </div>
     @endif
     @if(session('currentJiri'))
@@ -140,7 +152,7 @@ on([
                             <svg class="mx-auto size-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
                             </svg>
-                            <h3 class="mt-2 text-sm font-semibold text-gray-900">Aucun jiri créé</h3>
+                            <p class="mt-2 text-sm font-semibold text-gray-900">Aucun jiri créé</p>
                             <p class="mt-1 text-sm text-gray-500 flex items-center">Vous pouvez créer un jiri ici
                                 <svg width="12"
                                      height="12"
@@ -176,7 +188,6 @@ on([
                 @if(count($projects))
                     <ul role="list" class="divide-y divide-gray-100 bg-white border mt-4 shadow-sm ring-1 ring-gray-900/5">
                         @foreach($projects as $project)
-                            {{--                    {{ $projects }}--}}
                             <livewire:partials.project-item :$project :key="'project'.$project->id"/>
                         @endforeach
                     </ul>
@@ -186,7 +197,7 @@ on([
                             <svg class="mx-auto size-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
                             </svg>
-                            <h3 class="mt-2 text-sm font-semibold text-gray-900">Aucun Projets créé</h3>
+                            <p class="mt-2 text-sm font-semibold text-gray-900">Aucun Projets créé</p>
                             <p class="mt-1 text-sm text-gray-500 flex items-center">Vous pouvez en créer un jiri ici
                                 <svg width="12"
                                      height="12"
@@ -234,7 +245,7 @@ on([
                                 <svg class="mx-auto size-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-semibold text-gray-900">Aucun contacts créé</h3>
+                                <p class="mt-2 text-sm font-semibold text-gray-900">Aucun contacts créé</p>
                                 <p class="mt-1 text-sm text-gray-500 flex items-center">Vous pouvez en créer un contact
                                     ici
                                     <svg width="12"
