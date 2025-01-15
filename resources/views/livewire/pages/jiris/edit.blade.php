@@ -22,9 +22,9 @@ state([
     'evaluators',
     'user',
     'date',
-    'Initialdate' => '',
+    'initialDate' => '',
     'name' => '',
-    'Initialname' => '',
+    'initialName' => '',
     'showNameDateLiveError',
     'id',
     'deleteModal',
@@ -51,10 +51,18 @@ mount(function (Jiri $jiri) {
     $this->date = Carbon::parse($jiri->starting_at)->format('Y-m-d');
     $this->name = $jiri->name;
 
-	$this->showNameDateLiveError = false;
-	$this->InitialName = $jiri->name;
-	$this->InitialDate = $jiri->date;
+    $this->showNameDateLiveError = false;
+    $this->initialName = $jiri->name;
+    $this->initialDate = $jiri->date;
 });
+
+updated(['name' => function () {
+    $this->showNameDateLiveError = $this->name !== $this->initialName;
+}]);
+
+updated(['date' => function () {
+    $this->showNameDateLiveError = $this->date !== $this->initialDate;
+}]);
 
 $cancel = function () {
     $this->resetValidation();
@@ -182,7 +190,7 @@ on(['refreshComponent' => function () {
                        name="name"
                        id="name"
                        autocomplete="given-name"
-                       wire:model="name"
+                       wire:model.live="name"
                        class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6">
                 @if ($messages = $errors->get('name'))
                     <div class="text-sm text-red-600 space-y-1 mt-2">
@@ -196,7 +204,7 @@ on(['refreshComponent' => function () {
                 <input type="date"
                        name="date"
                        id="date"
-                       wire:model="date"
+                       wire:model.live="date"
                        autocomplete="given-name"
                        class="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6">
                 @if ($messages = $errors->get('date'))
