@@ -110,7 +110,7 @@ on(['refreshComponent' => function () {
                                 <svg class="mx-auto size-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-semibold text-gray-900">Aucun contact créé</h3>
+                                <p class="mt-2 text-sm font-semibold text-gray-900">Aucun contact créé</p>
                                 <p class="mt-1 text-sm text-gray-500">Vous pouvez créer un contact ici</p>
                                 <div class="mt-6">
                                     <button wire:click="create" type="button" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
