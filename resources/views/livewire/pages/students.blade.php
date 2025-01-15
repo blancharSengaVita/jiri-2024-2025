@@ -22,30 +22,6 @@ state([
 
 layout('layouts.app');
 
-//rules(fn() => [
-////	'marks.*' => 'numeric|max:20|min:0',
-//])->messages([
-//	'marks.*.numeric' => 'Le champ doit être un nombre',
-//	'marks.*.min' => 'Le nombre ne doit pas être inferieur à 0',
-//	'marks.*.max' => 'Le nombre ne doit pas être superieur à 20',
-//])->attributes([
-//]);
-
-//rules(fn() => [
-//    'name' => 'required',
-//    'description' => 'required',
-//    'linkInputs.*' => 'sometimes',
-//    'tasks.*' => 'sometimes',
-//])->messages([
-//    'name.required' => 'Le champ est obligatoire.',
-//    'description.required' => 'Le champ est obligatoire.',
-//    'linkInputs.*.required' => 'Le champ est obligatoire.',
-//    'tasks.*.required' => 'Le champ est obligatoire.',
-//    'linkInputs.*.sometimes' => 'Le champ est obligatoire.',
-//    'tasks.*.sometimes' => 'Le champ est obligatoire.',
-//])->attributes([
-//]);
-
 mount(function (Attendance $student) {
 	$this->student = $student;
 	$this->student->load('jiri');
@@ -78,15 +54,14 @@ mount(function (Attendance $student) {
 
 $save = function (Grade $grade) {
 	try {
-        $this->validate([
-            'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20',
-        ],
-            [
-                // Messages personnalisés pour chaque règle de validation
-                'marks.' . $grade->duty->project->name. '.numeric' => 'Le champ doit être un nombre',
-                'marks.' . $grade->duty->project->name .'.min' => 'Le nombre ne doit pas être inferieur à 0',
-                'marks.' . $grade->duty->project->name .  '.max' => 'Le nombre ne doit pas être superieur à 20',
-            ]);
+		$this->validate([
+			'marks.' . $grade->duty->project->name => 'numeric|min:0|max:20',
+		],
+			[
+				'marks.' . $grade->duty->project->name . '.numeric' => 'Le champ doit être un nombre',
+				'marks.' . $grade->duty->project->name . '.min' => 'Le nombre ne doit pas être inferieur à 0',
+				'marks.' . $grade->duty->project->name . '.max' => 'Le nombre ne doit pas être superieur à 20',
+			]);
 	} catch (\Illuminate\Validation\ValidationException $e) {
 		throw $e;
 	}
@@ -99,6 +74,7 @@ $save = function (Grade $grade) {
 };
 
 $cancel = function (Grade $grade) {
+    $this->resetValidation();
 	$this->marks[$grade->duty->project->name] = $grade->grade;
 	$this->comments[$grade->duty->project->name] = $grade->comment;
 };
@@ -156,13 +132,10 @@ on(['saved' => function () {
             <fieldset class="mt-6 pt-2 border-t border-gray-200 text-sm/6">
                 <label for="name" class="mt-2 block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Note sur 20</label>
                 <input type="number"
-                       {{--                       x-on:change.debounce="validateEmail($event)"--}}
-                       {{--                       x-model="userEmail"--}}
                        @if ($loop->first)
                            x-init="$el.focus()"
                        autofocus
                        @endif
-                       {{--                       x-model="mark"--}}
                        name="mark-{{$grade->duty->project->name}}"
                        id="mark-{{$grade->duty->project->name}}"
                        wire:model.live="marks.{{$grade->duty->project->name}}"
@@ -177,7 +150,6 @@ on(['saved' => function () {
                 <label for="date"
                        class="mt-2 block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Commentaire</label>
                 <textarea
-                    {{--                    x-model="comment"--}}
                     name="comment-{{$grade->duty->project->name}}"
                     id="comment-{{$grade->duty->project->name}}"
                     wire:model.live="comments.{{$grade->duty->project->name}}"
