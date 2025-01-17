@@ -35,7 +35,7 @@ on(['refreshDashboardItems' => function () {
         <div class="">
             <div class="h-11 w-11 flex-shrink-0">
                 <img class="h-11 w-11 rounded-full"
-                     src="{{$contact->photo ? asset($contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
+                     src="{{$contact->photo ? asset('storage/'.$contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
                      alt="Photo de {{$contact->name}}">
             </div>
         </div>

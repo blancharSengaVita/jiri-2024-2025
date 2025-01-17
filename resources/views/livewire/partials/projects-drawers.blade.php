@@ -481,9 +481,6 @@ on([
     scrollToBottom(container);
 
     function scrollToBottom (element ,number) {
-        console.log(container);
-        console.log(taskContainer);
-        console.log(linkContainer);
         container.scrollTop += element.clientHeight;
     }
 
