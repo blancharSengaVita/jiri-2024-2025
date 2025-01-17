@@ -172,7 +172,7 @@ on([
      x-show="open"
      class="py-10"
      x-data="{
-    open: $wire.entangle('drawer'),
+    open: $wire.entangle('drawer')
     }"
 >
     <div
@@ -311,7 +311,7 @@ on([
                                                 @if($id !== 0)
                                                     <div class="mt-2 h-24 w-24 flex-shrink-0">
                                                         <img class="h-24 w-24 rounded-full"
-                                                             src="{{ $path ?  asset($path) : 'https://ui-avatars.com/api/?length=1&name='. $name}}"
+                                                             src="{{ $path ?  asset('storage/'.$path) : 'https://ui-avatars.com/api/?length=1&name='. $name}}"
                                                              alt="Photo de {{$name}}">
                                                     </div>
                                                 @endif
@@ -345,8 +345,7 @@ on([
                                                                file:text-gray-900
                                                                file:text-sm
                                                                 "/>
-                                                <p class="text-xs text-gray-400 mt-2">Seules les PNG et JPG sont. Max
-                                                    4mo.</p>
+                                                <p class="text-xs text-gray-400 mt-2">Seuls les fichiers PNG et JPG sont acceptés. La taille maximale autorisée est de 5 Mo.</p>
                                                 @if ($messages = $errors->get('photo'))
                                                     <div class="text-sm text-red-600 space-y-1 mt-2">
                                                         <p>{{$messages[0]}}</p>
