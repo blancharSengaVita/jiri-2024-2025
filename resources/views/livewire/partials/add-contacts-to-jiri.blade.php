@@ -166,7 +166,7 @@ on(['attendanceUpdated' => function () {
                             <div class="flex items-center">
                                 <!-- Selected: "font-semibold" -->
                                 <img class="h-8 w-8 rounded-full"
-                                     src="{{$contact->photo ? asset($contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
+                                     src="{{$contact->photo ? asset('storage/'.$contact->photo) : 'https://ui-avatars.com/api/?length=1&name='. $contact->name}}"
                                      alt="Photo de {{$contact->name}}">
                                 <span class="ml-3 truncate">{{ $contact->name }}</span>
 
@@ -205,7 +205,7 @@ on(['attendanceUpdated' => function () {
             <div class="flex justify-between gap-x-4 py-6 px-4 rounded-xl border border-gray-200">
                 <div class="flex items-center  gap-x-2">
                     <img class="h-8 w-8 rounded-full"
-                         src="{{$attendance->photo ? asset($attendance->photo) : 'https://ui-avatars.com/api/?length=1&name='. $attendance->name}}"
+                         src="{{$attendance->photo ? asset('storage/'.$attendance->photo) : 'https://ui-avatars.com/api/?length=1&name='. $attendance->name}}"
                          alt="Photo de {{$attendance->name}}"/>
                     <div class="font-medium text-gray-900">{{$attendance->name}}</div>
                 </div>

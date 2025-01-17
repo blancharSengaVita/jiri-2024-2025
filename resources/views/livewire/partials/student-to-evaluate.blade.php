@@ -29,7 +29,7 @@ mount(function (Jiri $jiri) {
         <div class="flex justify-between bg-white border shadow-sm ring-1 ring-gray-900/5 p-4">
             <div class="flex items-center  gap-x-2">
                 <img class="h-8 w-8 rounded-full"
-                     src="{{$student->photo ? asset($student->photo) : 'https://ui-avatars.com/api/?length=1&name='. $student->name}}"
+                     src="{{$student->photo ? asset('storage/'.$student->photo) : 'https://ui-avatars.com/api/?length=1&name='. $student->name}}"
                      alt="Photo de {{$student->name}}"/>
                 <div class="font-medium text-gray-900">{{$student->name}}</div>
             </div>
