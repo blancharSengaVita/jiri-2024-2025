@@ -69,16 +69,18 @@ $create = function () {
 	$this->email = '';
 	$this->phone = '';
 	$this->photo = null;
+    $this->path = null;
 	$this->drawer = true;
 };
 
 $edit = function (Contact $contact) {
+    $this->resetValidation();
 	$this->id = $contact->id;
 	$this->name = $contact->name;
 	$this->email = $contact->email;
 	$this->phone = $contact->phone;
 	$this->path = $contact->photo;
-	$this->photo = null;
+    $this->photo = null;
 	$this->drawer = true;
 	$this->dispatch('focus')->self();
 };
